@@ -1,33 +1,35 @@
 simbolos = ['→', '↔', '~', '∧', '∨']
 
-def ModusPonens(estado):
-    if 'P → Q' in estado and 'P' in estado:
-        return estado + ["Q"]
-    else: 
-        return estado
+class Regras:
 
-def ModusTollens(estado):
-    if 'P → Q' in estado and '~Q' in estado:
-        return estado + ["~P"]
-    else: 
-        return estado
-    
-def SilogismoHipotetico(estado):
-    if 'P → Q' in estado and 'Q → R' in estado:
-        return estado + ["P → R"]
-    else: 
-        return estado
+    def ModusPonens(memoria):
+        if 'P → Q' in memoria and 'P' in memoria:
+            return memoria + ["Q"]
+        else: 
+            return memoria
 
-def SilogismoDisjuntivo(estado):
-    if 'P ∨ Q' in estado and '~P' in estado:
-        return estado + ["Q"]
-    elif 'P ∨ Q' in estado and '~Q' in estado:
-        return estado + ["P"]
-    else: 
-        return estado
+    def ModusTollens(memoria):
+        if 'P → Q' in memoria and '~Q' in memoria:
+            return memoria + ["~P"]
+        else: 
+            return memoria
         
-def ElimDuplaNegacao(estado):
-    if '~~P' in estado:
-        return estado + ["P"]
-    else: 
-        return estado
+    def SilogismoHipotetico(memoria):
+        if 'P → Q' in memoria and 'Q → R' in memoria:
+            return memoria + ["P → R"]
+        else: 
+            return memoria
+
+    def SilogismoDisjuntivo(memoria):
+        if 'P ∨ Q' in memoria and '~P' in memoria:
+            return memoria + ["Q"]
+        elif 'P ∨ Q' in memoria and '~Q' in memoria:
+            return memoria + ["P"]
+        else: 
+            return memoria
+            
+    def ElimDuplaNegacao(memoria):
+        if '~~P' in memoria:
+            return memoria + ["P"]
+        else: 
+            return memoria

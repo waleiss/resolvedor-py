@@ -1,17 +1,17 @@
-import regras
+from regras import Regras as regras
 simbolos = ['→', '↔', '~', '∧', '∨']
 #Separar a conclusão em uma variavel separada
+#Fazer a memoria ser um set
+memoria = ['P → Q', '~Q']
+fim = '~P'
+print(memoria)
 
-estado = ['P → Q', 'P']
-fim = 'Q'
-print(estado)
-
-while fim not in estado:
+while fim not in memoria:
     
-    estado = regras.ModusPonens(estado)
-    estado = regras.ModusTollens(estado)
-    estado = regras.SilogismoHipotetico(estado)
-    estado = regras.SilogismoDisjuntivo(estado)
-    estado = regras.ElimDuplaNegacao(estado)
-
-print(estado)
+    memoria = regras.ModusPonens(memoria)
+    memoria = regras.ModusTollens(memoria)
+    memoria = regras.SilogismoHipotetico(memoria)
+    memoria = regras.SilogismoDisjuntivo(memoria)
+    memoria = regras.ElimDuplaNegacao(memoria)
+    
+print(memoria)
