@@ -10,5 +10,5 @@ class ModusPonens(Observer):
         atoms_with_implication = [atom for atom in memory if re.match(r'^[A-Z] → [A-Z]$', atom)]
         
         for implication in atoms_with_implication:
-            if implication.split(' → ')[0] in atoms_alone:
+            if implication.split(' → ')[0] in atoms_alone and implication.split(' → ')[1] not in memory:
                 return memory.add(implication.split(' → ')[1])
