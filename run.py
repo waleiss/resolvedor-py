@@ -1,10 +1,15 @@
 from src import *
 
 bb = BlackBoard()
-mp = ModusPonens()
 
-memory = {'P', 'P → Q', 'R', 'S → T'}
-bb.subscribe(mp)
+mp = ModusPonens()
+mt = ModusTollens()
+hs = HypotheticalSyllogism()
+ds = DisjunctiveSyllogism()
+dne = DoubleNegationElimination()
+
+memory = {'~~P', 'Y', 'R', 'S → T', '~Q'}
+bb.subscribe(dne)
 print(memory)
 bb.notifyAll(memory)
 print(memory)
