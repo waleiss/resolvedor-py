@@ -1,4 +1,64 @@
-from regras import Regras as regras
+from src import *
+
+bb = BlackBoard()
+mp = ModusPonens()
+
+memory = {'P', 'P → Q', 'R', 'S → T'}
+bb.subscribe(mp)
+print(memory)
+bb.notifyAll(memory)
+print(memory)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+""" simbolos = ['→', '↔', '~', '∧', '∨']
+
+class Regras:
+
+    def ModusPonens(memoria):
+        if 'P → Q' in memoria and 'P' in memoria:
+            return memoria + ["Q"]
+        else: 
+            return memoria
+
+    def ModusTollens(memoria):
+        if 'P → Q' in memoria and '~Q' in memoria:
+            return memoria + ["~P"]
+        else: 
+            return memoria
+        
+    def SilogismoHipotetico(memoria):
+        if 'P → Q' in memoria and 'Q → R' in memoria:
+            return memoria + ["P → R"]
+        else: 
+            return memoria
+
+    def SilogismoDisjuntivo(memoria):
+        if 'P ∨ Q' in memoria and '~P' in memoria:
+            return memoria + ["Q"]
+        elif 'P ∨ Q' in memoria and '~Q' in memoria:
+            return memoria + ["P"]
+        else: 
+            return memoria
+            
+    def ElimDuplaNegacao(memoria):
+        if '~~P' in memoria:
+            return memoria + ["P"]
+        else: 
+            return memoria
+
 
 def aplicar_regra_e_verificar_memoria(regra, memoria, conclusao):
     memoria_anterior = memoria.copy()  # Faz uma cópia da memória antes da aplicação da regra
@@ -29,8 +89,9 @@ simbolos = ['→', '↔', '~', '∧', '∨']
 memoria = ['P → Q', '~Q']
 conclusao = '~P'
 
-resultado = aplicar_regras(memoria, conclusao, regras)
+resultado = aplicar_regras(memoria, conclusao, Regras)
 if conclusao in resultado:
     print("Conclusão encontrada:", resultado)
 else:
     print("Não foi possível chegar à conclusão desejada.")
+ """
