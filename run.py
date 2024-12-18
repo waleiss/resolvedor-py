@@ -1,26 +1,36 @@
 from src import *
+from src.rules import *
 
-bb = BlackBoard()
-mp = ModusPonens()
-mt = ModusTollens()
-hs = HypotheticalSyllogism()
-ds = DisjunctiveSyllogism()
-dne = DoubleNegationElimination()
+# Criação do controlador
+controller = Controller()
 
-bb.subscribe(mp)
-bb.subscribe(mt)
-bb.subscribe(hs)
-bb.subscribe(ds)
-bb.subscribe(dne)
+# Regras disponíveis
+ds_rule = DisjunctiveSyllogism()
+mt_rule = ModusTollens()
 
-memory = {'P → Q', 'Q → S', 'S → R', 'P'}
-goal = 'R'
+# Adiciona as regras ao controlador
+controller.add_rule(ds_rule, priority=2)
+controller.add_rule(mt_rule, priority=1)
 
-while goal not in memory:
-    memory_before = memory.copy()
-    bb.notifyAll(memory)
-    if memory == memory_before:
-        break
-    print(memory)
+# Define as premissas iniciais
+P = Expression(left="P")
+Q = Expression(left="Q")
+not_P = Expression(operator="¬", left=P)
+disjunction = Expression(operator="∨", left=P, right=Q)
 
-print('Conseguiu provar o argumento mostrando que', goal, 'é verdadeiro')
+controller.add_expression(disjunction)
+controller.add_expression(not_P)
+
+# Define a conclusão que queremos provar
+controller.set_conclusion(Q)
+
+# Executa o sistema
+success = controller.execute()
+
+# Logs de execução
+for log in controller.get_logs():
+    print(log)
+
+# Resultado final
+print("Conclusão foi alcançada:", success)
+print("Memória final:", controller.get_memory())
