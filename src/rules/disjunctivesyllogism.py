@@ -36,15 +36,18 @@ class DisjunctiveSyllogism(Observer):
                     return
     
     def verify(self, memory):
-        """Verifica se a regra é aplicável ao estado atual da memória."""
         for expr in memory:
-            if expr.operator == '∨':
+            if expr.operator == '∨':  # Se for uma disjunção
                 disjunct1 = expr.left
                 disjunct2 = expr.right
 
+                # Verifica se a negação de um dos disjuntos está na memória
                 negated_disjunct1 = self.get_negated(disjunct1)
                 negated_disjunct2 = self.get_negated(disjunct2)
 
-                if negated_disjunct1 in memory or negated_disjunct2 in memory:
-                    return True
-        return False
+                if negated_disjunct1 in memory and disjunct2 not in memory:
+                    return True  # Regra pode ser aplicada gerando disjunct2
+                if negated_disjunct2 in memory and disjunct1 not in memory:
+                    return True  # Regra pode ser aplicada gerando disjunct1
+
+        return False  # Não encontrou condições para aplicar a regra

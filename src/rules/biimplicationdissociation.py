@@ -7,14 +7,14 @@ class BiimplicationDissociation(Observer):
 
     def update(self, memory):
         for expr in memory:
-            # Procura por uma expressão do tipo A ↔ B
+            # Forma 2 da Equivalencia Material: Procura por (A ↔ B) na memória para gerar (A → B) e (B → A)  
             if expr.operator == '↔':
-                A = expr.left
-                B = expr.right
+                left = expr.left
+                right = expr.right
 
                 # Cria as novas implicações A → B e B → A
-                implication1 = Expression(operator='→', left=A, right=B)
-                implication2 = Expression(operator='→', left=B, right=A)
+                implication1 = Expression(operator='→', left=left, right=right)
+                implication2 = Expression(operator='→', left=right, right=left)
 
                 # Adiciona as implicações na memória se não estiverem presentes
                 added = False
@@ -33,6 +33,13 @@ class BiimplicationDissociation(Observer):
     def verify(self, memory):
         """Verifica se há uma bi-implicação dissociável na memória."""
         for expr in memory:
+            # Forma 2 da Equivalencia Material: Procura por (A ↔ B) na memória para gerar (A → B) e (B → A) 
             if expr.operator == '↔':
-                return True
-        return False
+                left = expr.left
+                right = expr.right
+
+                implication1 = Expression(operator='→', left=left, right=right)
+                implication2 = Expression(operator='→', left=right, right=left)
+                
+                if implication1 not in memory or implication2 not in memory:
+                    return True

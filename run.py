@@ -1,36 +1,27 @@
-from src import *
-from src.rules import *
+from src.controller import Controller
+from src.rules import DisjunctiveSyllogism, ModusTollens, BiimplicationIntroduction, BiimplicationDissociation
+from src.expression import Expression
 
-# Criação do controlador
-controller = Controller()
+# Regras
+rules = [
+    DisjunctiveSyllogism(),
+    ModusTollens(),
+    BiimplicationIntroduction(),
+    BiimplicationDissociation()
+]
 
-# Regras disponíveis
-ds_rule = DisjunctiveSyllogism()
-mt_rule = ModusTollens()
+# Memória inicial
+A = Expression(left="A")
+B = Expression(left="B")
+C = Expression(left="C")
+implication = Expression(operator="→", left=A, right=B)
+disjunction= Expression(operator='∨', left=B,right=C)
+not_B = Expression(operator="¬", left=B)
+memory = [implication, not_B, disjunction ]
 
-# Adiciona as regras ao controlador
-controller.add_rule(ds_rule, priority=2)
-controller.add_rule(mt_rule, priority=1)
+# Conclusão a ser provada
+conclusion = Expression(operator="¬", left=A)
 
-# Define as premissas iniciais
-P = Expression(left="P")
-Q = Expression(left="Q")
-not_P = Expression(operator="¬", left=P)
-disjunction = Expression(operator="∨", left=P, right=Q)
-
-controller.add_expression(disjunction)
-controller.add_expression(not_P)
-
-# Define a conclusão que queremos provar
-controller.set_conclusion(Q)
-
-# Executa o sistema
-success = controller.execute()
-
-# Logs de execução
-for log in controller.get_logs():
-    print(log)
-
-# Resultado final
-print("Conclusão foi alcançada:", success)
-print("Memória final:", controller.get_memory())
+# Cria e executa o controlador
+controller = Controller(rules, memory, conclusion)
+controller.run()

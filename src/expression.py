@@ -5,7 +5,7 @@ class Expression:
         self.right = right
 
     def __repr__(self):
-        if self.operator == '→':
+        if self.operator in ['→', '↔', '∧', '∨']:
             return f"({self.left} {self.operator} {self.right})"
         if self.operator == '¬':
             return f"({self.operator}{self.left})"
