@@ -14,8 +14,14 @@ class ModusTollens(Observer):
         if self.is_negation(expression):
             return expression.left  # ¬(¬A) → A
         return Expression(operator='¬', left=expression)
+    
+    def add_to_log(self, log, memory, expr, negated_antecedent, negated_consequent):
+        log.append(
+            f"({len(log) - 1}) {negated_antecedent}  Modus Tollens  "
+            f"{memory.index(expr) + 1}, {memory.index(negated_consequent) + 1}"
+        )
 
-    def update(self, memory):
+    def update(self, memory, log):
         for expr in memory:
             # Procura por uma expressão do tipo A → B
             if expr.operator == '→':
@@ -29,6 +35,7 @@ class ModusTollens(Observer):
                     negated_antecedent = self.get_negated(antecedent)
                     if negated_antecedent not in memory:
                         memory.append(negated_antecedent)
+                        self.add_to_log(log, memory, expr, negated_antecedent, negated_consequent)
                         print(f"Aplicando Modus Tollens: {expr} e {negated_consequent} ⇒ {negated_antecedent}")
                         return  # Adiciona apenas uma vez por iteração
     

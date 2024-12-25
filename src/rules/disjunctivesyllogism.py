@@ -5,6 +5,12 @@ class DisjunctiveSyllogism(Observer):
     def __init__(self):
         pass
 
+    def add_to_log(self, log, memory, expr, negative_disjunct, added_disjunct):
+        log.append(
+            f"({len(log) - 1}) {added_disjunct}  Silogismo Disjuntivo  "
+            f"{memory.index(expr) + 1}, {memory.index(negative_disjunct) + 1}"
+        )
+
     def is_negation(self, expression):
         """Verifica se uma expressão é do tipo ¬A."""
         return expression.operator == '¬'
@@ -15,7 +21,7 @@ class DisjunctiveSyllogism(Observer):
             return expression.left  # ¬(¬A) → A
         return Expression(operator='¬', left=expression)
 
-    def update(self, memory):
+    def update(self, memory, log):
         for expr in memory:
             # Procura por uma expressão do tipo p ∨ q
             if expr.operator == '∨':
@@ -27,11 +33,13 @@ class DisjunctiveSyllogism(Observer):
 
                 if negated_disjunct1 in memory and disjunct2 not in memory:
                     memory.append(disjunct2)
+                    self.add_to_log(log, memory, expr, negated_disjunct1, disjunct2)
                     print(f"Aplicando Silogismo Disjuntivo: {expr} e {negated_disjunct1} ⇒ {disjunct2}")
                     return
                 
                 if negated_disjunct2 in memory and disjunct1 not in memory:
                     memory.append(disjunct1)
+                    self.add_to_log(log, memory, expr, negated_disjunct2, disjunct1)
                     print(f"Aplicando Silogismo Disjuntivo: {expr} e {negated_disjunct2} ⇒ {disjunct1}")
                     return
     

@@ -5,7 +5,13 @@ class BiimplicationIntroduction(Observer):
     def __init__(self):
         pass
 
-    def update(self, memory):
+    def add_to_log(log, memory, expr, implication2, biimplication):
+        log.append(
+            f"({len(log) - 1}) {biimplication}  Introdução de Bi-implicação  "
+            f"{memory.index(expr) + 1}, {memory.index(implication2) + 1}"
+        )
+
+    def update(self, memory, log):
 
         for expr in memory:
             # Forma 1 da Equivalencia Material: Procura por (A → B) e (B → A) na memória para gerar (A ↔ B)
@@ -22,6 +28,7 @@ class BiimplicationIntroduction(Observer):
                     # Adiciona a bi-implicação na memória se não estiver presente
                     if biimplication not in memory:
                         memory.append(biimplication)
+                        self.add_to_log(log, memory, expr, implication2, biimplication)
                         print(f"Aplicando Associação de Bi-implicação: {expr} e {implication2} ⇒ {biimplication}")
                         return  # Adiciona apenas uma vez por iteração
 

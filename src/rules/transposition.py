@@ -5,6 +5,12 @@ class Transposition(Observer):
     def __init__(self):
         pass
 
+    def add_to_log(self, log, memory, expr, transposed):
+        log.append(
+            f"({len(log) - 1}) {transposed}  Transposição  "
+            f"{memory.index(expr) + 1}"
+        )
+
     def is_negation(self, expression):
         return expression.operator == '¬'
 
@@ -13,7 +19,7 @@ class Transposition(Observer):
             return expression.left
         return Expression(operator='¬', left=expression)
 
-    def update(self, memory):
+    def update(self, memory, log):
         for expr in memory:
             if expr.operator == '→':  # Verifica implicação P → Q
                 antecedent = expr.left
@@ -24,6 +30,7 @@ class Transposition(Observer):
 
                 if transposed not in memory:
                     memory.append(transposed)
+                    self.add_to_log(log, memory, expr, transposed)
                     print(f"Aplicando Transposição: {expr} ⇒ {transposed}")
                     return  # Adiciona uma vez por iteração
 

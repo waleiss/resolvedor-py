@@ -5,6 +5,12 @@ class DeMorgan(Observer):
     def __init__(self):
         pass
 
+    def add_to_log(self, log, memory, expr, transformed):
+        log.append(
+            f"({len(log) - 1}) {transformed}  De Morgan  "
+            f"{memory.index(expr) + 1}"
+        )
+
     def is_negation(self, expression):
         return expression.operator == '¬'
 
@@ -22,7 +28,7 @@ class DeMorgan(Observer):
         new_operator = '∧' if operator == '∨' else '∨'
         return Expression(operator=new_operator, left=negated_left, right=negated_right)
 
-    def update(self, memory):
+    def update(self, memory, log):
         for expr in memory:
             if expr.operator == '¬' and expr.left.operator in ('∨', '∧'):
                 inner_expr = expr.left

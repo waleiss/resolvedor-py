@@ -14,4 +14,4 @@ from .exportation import Exportation
 from .materialimplication import MaterialImplication
 from .conjunction import Conjunction
 from .simplification import Simplification
-from .doublenegationelimination import DoubleNegationElimination
+from .doublenegation import DoubleNegation

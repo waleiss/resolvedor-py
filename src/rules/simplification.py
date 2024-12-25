@@ -5,7 +5,13 @@ class Simplification(Observer):
     def __init__(self):
         pass
 
-    def update(self, memory):
+    def add_to_log(self, log, memory, expr, simplified):
+        log.append(
+            f"({len(log) - 1}) {simplified}  Simplificação  "
+            f"{memory.index(expr) + 1}"
+        )
+
+    def update(self, memory, log):
         for expr in memory:
             if expr.operator == '∧':
                 left = expr.left
@@ -14,10 +20,12 @@ class Simplification(Observer):
                 added = False
                 if left not in memory:
                     memory.append(left)
+                    self.add_to_log(log, memory, expr, left)
                     print(f"Aplicando Simplificação: {expr} ⇒ {left}")
                     added = True
                 if right not in memory:
                     memory.append(right)
+                    self.add_to_log(log, memory, expr, right)
                     print(f"Aplicando Simplificação: {expr} ⇒ {right}")
                     added = True
                 

@@ -5,7 +5,13 @@ class Commutativity(Observer):
     def __init__(self):
         pass
 
-    def update(self, memory):
+    def add_to_log(self, log, memory, expr, comuted_expr):
+        log.append(
+            f"({len(log) - 1}) {comuted_expr}  Comutatividade  "
+            f"{memory.index(expr) + 1}"
+        )
+
+    def update(self, memory, log):
         for expr in memory:
             # Verifica se é uma conjunção ou disjunção
             if expr.operator in ['∧', '∨']:
@@ -18,6 +24,7 @@ class Commutativity(Observer):
                 # Adiciona à memória se ainda não estiver presente
                 if commuted_expr not in memory:
                     memory.append(commuted_expr)
+                    self.add_to_log(log, memory, expr, commuted_expr)
                     print(f"Aplicando Comutatividade: {expr} ⇒ {commuted_expr}")
                     return
 

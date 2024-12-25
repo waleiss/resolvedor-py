@@ -5,7 +5,13 @@ class BiimplicationDissociation(Observer):
     def __init__(self):
         pass
 
-    def update(self, memory):
+    def add_to_log(self, log, memory, expr, implication):
+        log.append(
+            f"({len(log) - 1}) {implication}  Dissociação de Bi-implicação  "
+            f"{memory.index(expr) + 1}"
+        )
+
+    def update(self, memory, log):
         for expr in memory:
             # Forma 2 da Equivalencia Material: Procura por (A ↔ B) na memória para gerar (A → B) e (B → A)  
             if expr.operator == '↔':
@@ -20,10 +26,12 @@ class BiimplicationDissociation(Observer):
                 added = False
                 if implication1 not in memory:
                     memory.append(implication1)
+                    self.add_to_log(log, memory, expr, implication1)
                     print(f"Aplicando Dissociação de Bi-implicação: {expr} ⇒ {implication1}")
                     added = True
                 if implication2 not in memory:
                     memory.append(implication2)
+                    self.add_to_log(log, memory, expr, implication2)
                     print(f"Aplicando Dissociação de Bi-implicação: {expr} ⇒ {implication2}")
                     added = True
 

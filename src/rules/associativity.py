@@ -5,7 +5,13 @@ class Associativity(Observer):
     def __init__(self):
         pass
 
-    def update(self, memory):
+    def add_to_log(self, log, memory, expr, associated):
+        log.append(
+            f"({len(log) - 1}) {associated}  Associatividade  "
+            f"{memory.index(expr) + 1}"
+        )
+
+    def update(self, memory, log):
         for expr in memory:
             # Verifica se é do tipo P ∨ (Q ∨ R)
             if expr.operator == '∨' and expr.right.operator == '∨':
@@ -20,6 +26,7 @@ class Associativity(Observer):
 
                 if associated not in memory:
                     memory.append(associated)
+                    self.add_to_log(log, memory, expr, associated)
                     print(f"Aplicando Associatividade: {expr} ⇒ {associated}")
                     return
 
@@ -36,6 +43,7 @@ class Associativity(Observer):
 
                 if associated not in memory:
                     memory.append(associated)
+                    self.add_to_log(log, memory, expr, associated)
                     print(f"Aplicando Associatividade: {expr} ⇒ {associated}")
                     return
 

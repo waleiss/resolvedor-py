@@ -5,7 +5,13 @@ class Exportation(Observer):
     def __init__(self):
         pass
 
-    def update(self, memory):
+    def add_to_log(self, log, memory, expr, new_expr):
+        log.append(
+            f"({len(log) - 1}) {new_expr}  Exportação  "
+            f"{memory.index(expr) + 1}"
+        )
+
+    def update(self, memory, log):
         for expr in memory:
             # Verifica a forma (P ∧ Q) → R
             if expr.operator == '→' and expr.left.operator == '∧':
@@ -21,6 +27,7 @@ class Exportation(Observer):
 
                 if new_expr not in memory:
                     memory.append(new_expr)
+                    self.add_to_log(log, memory, expr, new_expr)
                     print(f"Aplicando Exportação: {expr} ⇒ {new_expr}")
                     return
 
@@ -38,6 +45,7 @@ class Exportation(Observer):
 
                 if new_expr not in memory:
                     memory.append(new_expr)
+                    self.add_to_log(log, memory, expr, new_expr)
                     print(f"Aplicando Exportação: {expr} ⇒ {new_expr}")
                     return
 
