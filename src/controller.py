@@ -16,10 +16,7 @@ class Controller:
             # Tenta aplicar a regra
             for rule in self.rules:
                 if self.conclusion not in self.memory:
-                    print("Aplicando a regra:", rule.__class__.__name__)
-                    print(self.memory)
                     rule.update(self.memory, self.log)
-                    sleep(1)
 
         # Exibe o log de execução
         for step in self.log:
