@@ -5,6 +5,14 @@ class MaterialImplication(Observer):
     def __init__(self):
         pass
 
+    def is_negation(self, expression):
+        return expression.operator == '¬'
+
+    def get_negated(self, expression):
+        if self.is_negation(expression):
+            return expression.left  # Remove dupla negação
+        return Expression(operator='¬', left=expression)
+
     def add_to_log(self, log, memory, expr, new_expr):
         log.append(
             f"({len(log) - 1}) {new_expr}  Implicação Material  "
@@ -18,9 +26,11 @@ class MaterialImplication(Observer):
                 antecedent = expr.left
                 consequent = expr.right
 
+                negated_antecedent = self.get_negated(antecedent)
+
                 new_expr = Expression(
                     operator='∨',
-                    left=Expression(operator='¬', left=antecedent, right=None),
+                    left=negated_antecedent,
                     right=consequent
                 )
 
@@ -37,9 +47,11 @@ class MaterialImplication(Observer):
                 antecedent = expr.left
                 consequent = expr.right
 
+                negated_antecedent = self.get_negated(antecedent)
+
                 new_expr = Expression(
                     operator='∨',
-                    left=Expression(operator='¬', left=antecedent, right=None),
+                    left=negated_antecedent,
                     right=consequent
                 )
 

@@ -5,7 +5,7 @@ class ConstructiveDilemma(Observer):
     def __init__(self):
         pass
 
-    def add_to_log(log, memory, implication1, implication2, disjunction, new_disjunction):
+    def add_to_log(self, log, memory, implication1, implication2, disjunction, new_disjunction):
         log.append(
             f"({len(log) - 1}) {new_disjunction}  Dilema Construtivo  "
             f"{memory.index(implication1) + 1}, {memory.index(implication2) + 1}, {memory.index(disjunction) + 1}"

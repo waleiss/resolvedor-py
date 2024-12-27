@@ -2,6 +2,7 @@ from src.controller import Controller
 from src.rules import *  # Importa todas as regras
 from src.expression import Expression
 
+# simbolos = ['→', '↔', '¬', '∧', '∨']
 # Regras
 rules = [
     DisjunctiveSyllogism(),
