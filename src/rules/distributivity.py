@@ -19,7 +19,7 @@ class Distributivity(Observer):
         right_distributed = Expression(operator=operator_outer, left=outer_expr, right=inner_right)
         return Expression(operator=operator_inner, left=left_distributed, right=right_distributed)
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
         for expr in memory:
             if expr.operator == '∨' and expr.right.operator == '∧':
                 # P ∨ (Q ∧ R) → (P ∨ Q) ∧ (P ∨ R)

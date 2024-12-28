@@ -11,7 +11,7 @@ class Simplification(Observer):
             f"{memory.index(expr) + 1}"
         )
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
         for expr in memory:
             if expr.operator == '∧':
                 left = expr.left

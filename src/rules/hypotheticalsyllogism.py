@@ -11,7 +11,7 @@ class HypotheticalSyllogism(Observer):
             f"{memory.index(expr1) + 1}, {memory.index(expr2) + 1}"
         )
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
         for expr1 in memory:
             # Procura por uma expressão do tipo p → q
             if expr1.operator == '→':

@@ -21,7 +21,7 @@ class DisjunctiveSyllogism(Observer):
             return expression.left  # ¬(¬A) → A
         return Expression(operator='¬', left=expression)
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
         for expr in memory:
             # Procura por uma expressão do tipo p ∨ q
             if expr.operator == '∨':

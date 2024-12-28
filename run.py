@@ -21,7 +21,8 @@ rules = [
     MaterialImplication(),
     Conjunction(),
     Simplification(),
-    DoubleNegation()
+    DoubleNegation(),
+    Addition(),
 ]
 
 # Memória inicial

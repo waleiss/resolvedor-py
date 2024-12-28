@@ -28,7 +28,7 @@ class DeMorgan(Observer):
         new_operator = '∧' if operator == '∨' else '∨'
         return Expression(operator=new_operator, left=negated_left, right=negated_right)
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
         for expr in memory:
             if expr.operator == '¬' and expr.left.operator in ('∨', '∧'):
                 inner_expr = expr.left

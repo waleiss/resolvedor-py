@@ -11,7 +11,7 @@ class Commutativity(Observer):
             f"{memory.index(expr) + 1}"
         )
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
         for expr in memory:
             # Verifica se é uma conjunção ou disjunção
             if expr.operator in ['∧', '∨']:

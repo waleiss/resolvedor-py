@@ -11,7 +11,7 @@ class BiimplicationIntroduction(Observer):
             f"{memory.index(expr) + 1}, {memory.index(implication2) + 1}"
         )
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
 
         for expr in memory:
             # Forma 1 da Equivalencia Material: Procura por (A → B) e (B → A) na memória para gerar (A ↔ B)

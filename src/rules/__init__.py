@@ -15,3 +15,4 @@ from .materialimplication import MaterialImplication
 from .conjunction import Conjunction
 from .simplification import Simplification
 from .doublenegation import DoubleNegation
+from .addition import Addition

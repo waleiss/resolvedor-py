@@ -11,7 +11,7 @@ class Associativity(Observer):
             f"{memory.index(expr) + 1}"
         )
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
         for expr in memory:
             # Verifica se é do tipo P ∨ (Q ∨ R)
             if expr.operator == '∨' and expr.right.operator == '∨':

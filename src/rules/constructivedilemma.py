@@ -11,7 +11,7 @@ class ConstructiveDilemma(Observer):
             f"{memory.index(implication1) + 1}, {memory.index(implication2) + 1}, {memory.index(disjunction) + 1}"
         )
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
         for implication1 in memory:
             if implication1.operator == '→':
                 antecedent1 = implication1.left

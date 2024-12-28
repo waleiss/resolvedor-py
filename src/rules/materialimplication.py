@@ -19,7 +19,7 @@ class MaterialImplication(Observer):
             f"{memory.index(expr) + 1}"
         )
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
         for expr in memory:
             # Verifica a forma P → Q
             if expr.operator == '→':

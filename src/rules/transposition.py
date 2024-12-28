@@ -19,7 +19,7 @@ class Transposition(Observer):
             return expression.left
         return Expression(operator='¬', left=expression)
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
         for expr in memory:
             if expr.operator == '→':  # Verifica implicação P → Q
                 antecedent = expr.left

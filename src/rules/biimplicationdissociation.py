@@ -11,7 +11,7 @@ class BiimplicationDissociation(Observer):
             f"{memory.index(expr) + 1}"
         )
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
         for expr in memory:
             # Forma 2 da Equivalencia Material: Procura por (A ↔ B) na memória para gerar (A → B) e (B → A)  
             if expr.operator == '↔':

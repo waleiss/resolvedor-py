@@ -14,7 +14,7 @@ class DoubleNegation(Observer):
     def is_negation(self, expression):
         return expression.operator == '¬'
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
         for expr in memory:
             # Verifica se é uma negação e se o filho é uma negação também
             if self.is_negation(expr) and self.is_negation(expr.left):

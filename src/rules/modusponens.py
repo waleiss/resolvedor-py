@@ -11,7 +11,7 @@ class ModusPonens(Observer):
             f"{memory.index(expr) + 1}, {memory.index(antecedent) + 1}"
         )
 
-    def update(self, memory, log):
+    def update(self, memory, log, conclusion=None):
         for expr in memory:
             # Procura por uma expressão do tipo A → B
             if expr.operator == '→':
