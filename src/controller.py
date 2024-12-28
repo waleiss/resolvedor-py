@@ -1,5 +1,5 @@
 from time import sleep
-from filter_steps import filter_relevant_steps
+from .filter_steps import filter_relevant_steps
 
 class Controller:
     def __init__(self, rules, memory, conclusion, log):
