@@ -4,12 +4,28 @@ class Expression:
         self.left = left
         self.right = right
 
-    def __repr__(self):
-        if self.operator in ['→', '↔', '∧', '∨']:
-            return f"({self.left} {self.operator} {self.right})"
+    def __str__(self, top_level=True):
+        if self.operator is None:
+            # Átomo simples
+            return str(self.left)
+        
         if self.operator == '¬':
-            return f"({self.operator}{self.left})"
-        return str(self.left)  # Nó folha ou expressão atômica
+            # Negação
+            return f"¬{self.left.__str__(top_level=False)}"
+        
+        # Expressões binárias
+        left_str = self.left.__str__(top_level=False)
+        right_str = self.right.__str__(top_level=False)
+        
+        # Adiciona parênteses apenas se não for top-level
+        expr_str = f"{left_str} {self.operator} {right_str}"
+        if top_level:
+            return expr_str
+        return f"({expr_str})"
+    
+    def __repr__(self):
+        return self.__str__()
+
 
     def __eq__(self, other):
         # Verifica se duas expressões são iguais
