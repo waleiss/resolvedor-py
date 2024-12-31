@@ -33,7 +33,7 @@ class HypotheticalSyllogism(Observer):
                             print(f"Aplicando Silogismo Hipotético: {expr1} e {expr2} ⇒ {new_expression}")
                             return  # Adiciona apenas uma vez por iteração
                         
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         for expr1 in memory:
             # Procura por uma expressão do tipo p → q
             if expr1.operator == '→':
@@ -49,6 +49,6 @@ class HypotheticalSyllogism(Observer):
                         # Gera uma nova expressão condicional p → r
                         new_expression = Expression(operator='→', left=antecedent1, right=consequent2)
 
-                        if new_expression not in memory:
+                        if new_expression not in memory and new_expression == proposition:
                             return True
         return False

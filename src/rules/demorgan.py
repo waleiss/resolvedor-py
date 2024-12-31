@@ -39,13 +39,13 @@ class DeMorgan(Observer):
                     print(f"Aplicando De Morgan: {expr} ⇒ {transformed}")
                     return
 
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         for expr in memory:
             if expr.operator == '¬' and expr.left.operator in ('∨', '∧'):
                 inner_expr = expr.left
                 transformed = self.apply_de_morgan(inner_expr.operator, inner_expr.left, inner_expr.right)
 
-                if transformed not in memory:
+                if transformed not in memory and transformed == proposition:
                     return True
 
         return False

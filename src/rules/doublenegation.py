@@ -25,10 +25,10 @@ class DoubleNegation(Observer):
                     print(f"Aplicando Dupla Negação: {expr} ⇒ {simplified_expression}")
                     return  # Adiciona apenas uma vez por iteração
 
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         for expr in memory:
             if self.is_negation(expr) and self.is_negation(expr.left):
                 simplified_expression = expr.left.left
-                if simplified_expression not in memory:
+                if simplified_expression not in memory and simplified_expression == proposition:
                     return True  # Pode aplicar a regra gerando a expressão simplificada
         return False

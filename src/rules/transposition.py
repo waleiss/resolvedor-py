@@ -34,7 +34,7 @@ class Transposition(Observer):
                     print(f"Aplicando Transposição: {expr} ⇒ {transposed}")
                     return  # Adiciona uma vez por iteração
 
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         for expr in memory:
             if expr.operator == '→':  # Verifica implicação P → Q
                 antecedent = expr.left
@@ -43,7 +43,7 @@ class Transposition(Observer):
                 # Transposição esperada: ¬Q → ¬P
                 transposed = Expression(operator='→', left=self.get_negated(consequent), right=self.get_negated(antecedent))
 
-                if transposed not in memory:
+                if transposed not in memory and transposed == proposition:
                     return True  # Regra pode ser aplicada
 
         return False

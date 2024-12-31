@@ -60,33 +60,13 @@ class Addition(Observer):
                         print(f"Aplicando Adição: {left_part} ∨ {right_part} ⇒ {new_expr}")
                         return
 
-    def verify(self, memory, conclusion=None):
+    def verify(self, memory, proposition):
         # Verifica a conclusão, caso seja fornecida
-        if conclusion and conclusion.operator == '∨':
-            left_part = conclusion.left
-            right_part = conclusion.right
+        if proposition and proposition == '∨':
+            left_part = proposition.left
+            right_part = proposition.right
 
             if left_part in memory or right_part in memory:
                 return True
 
-        # Verifica as possibilidades na memória
-        for expr in memory:
-            # Verifica necessidade de disjunção na esquerda
-            if expr.operator in ['→', '↔', '∧', '∨'] and expr.left.operator == '∨':
-                left_part = expr.left.left
-                right_part = expr.left.right
-
-                if left_part in memory or right_part in memory:
-                    new_expr = Expression(operator='∨', left=left_part, right=right_part)
-                    if new_expr not in memory:
-                        return True
-
-            # Verifica necessidade de disjunção na direita
-            if expr.operator in ['→', '↔', '∧', '∨'] and expr.right.operator == '∨':
-                left_part = expr.right.left
-                right_part = expr.right.right
-
-                if left_part in memory or right_part in memory:
-                    new_expr = Expression(operator='∨', left=left_part, right=right_part)
-                    if new_expr not in memory:
-                        return True
+        return False

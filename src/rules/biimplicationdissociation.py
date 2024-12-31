@@ -38,7 +38,7 @@ class BiimplicationDissociation(Observer):
                 if added:
                     return  # Adiciona apenas uma vez por iteração
 
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         """Verifica se há uma bi-implicação dissociável na memória."""
         for expr in memory:
             # Forma 2 da Equivalencia Material: Procura por (A ↔ B) na memória para gerar (A → B) e (B → A) 
@@ -49,5 +49,5 @@ class BiimplicationDissociation(Observer):
                 implication1 = Expression(operator='→', left=left, right=right)
                 implication2 = Expression(operator='→', left=right, right=left)
                 
-                if implication1 not in memory or implication2 not in memory:
+                if implication1 not in memory or implication2 not in memory and proposition == implication1 or proposition == implication2:
                     return True

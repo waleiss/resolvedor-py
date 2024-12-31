@@ -47,7 +47,7 @@ class Associativity(Observer):
                     print(f"Aplicando Associatividade: {expr} ⇒ {associated}")
                     return
 
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         for expr in memory:
             # Verifica se é do tipo P ∨ (Q ∨ R)
             if expr.operator == '∨' and expr.right.operator == '∨':
@@ -60,7 +60,7 @@ class Associativity(Observer):
                                         left=Expression(operator='∨', left=left, right=middle),
                                         right=right)
 
-                if associated not in memory:
+                if associated not in memory and associated == proposition:
                     return True  # Regra pode ser aplicada
 
             # Verifica se é do tipo P ∧ (Q ∧ R)
@@ -74,7 +74,7 @@ class Associativity(Observer):
                                         left=Expression(operator='∧', left=left, right=middle),
                                         right=right)
 
-                if associated not in memory:
+                if associated not in memory and associated == proposition:
                     return True  # Regra pode ser aplicada
 
         return False

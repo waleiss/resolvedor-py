@@ -31,16 +31,16 @@ rules = [
 def initialize(memory, conclusion):
 
     print("\nDigite expressões no formato: '¬A', '(A ∨ B) → C', '¬(D ↔ E)'. Operadores válidos: ¬, ∨, ∧, →, ↔.",
-          "\nQuando finalizar as premissas e quiser definir a conclusão, digite 'CONCLUIR'.",
+          "\nQuando finalizar as premissas e quiser definir a conclusão, digite 'CONCLUSAO'.",
           "\nCaso queira encerrar o programa, digite 'sair'.\n"
         )
 
     while True:
-        user_input = input("Digite uma premissa (ou 'CONCLUIR' para definir a conclusão): ").strip()
+        user_input = input("Digite uma premissa (ou 'CONCLUSAO' para definir a conclusão): ").strip()
         if user_input.lower() == 'sair':
             print("Execução encerrada pelo usuário.")
             return None, None
-        if user_input.lower() == 'concluir':
+        if user_input.lower() == 'conclusao':
             break
         
         try:
@@ -74,4 +74,4 @@ log.append('---------------------------------------------------------')
 
 # Cria e executa o controlador
 controller = Controller(rules, memory, conclusion, log)
-controller.run()
+controller.run_solver()

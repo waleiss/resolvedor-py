@@ -32,12 +32,13 @@ class Simplification(Observer):
                 if added:
                     return
     
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         for expr in memory:
-            left = expr.left
-            right = expr.right
-            
-            if left not in memory or right not in memory:
-                return True
+            if expr.operator == '∧':
+                left = expr.left
+                right = expr.right
+                
+                if left == proposition or right == proposition:
+                    return True
         
         return False

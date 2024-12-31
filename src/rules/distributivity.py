@@ -39,16 +39,16 @@ class Distributivity(Observer):
                     print(f"Aplicando Distributividade: {expr} ⇒ {distributed}")
                     return
 
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         for expr in memory:
             if expr.operator == '∨' and expr.right.operator == '∧':
                 distributed = self.distribute('∨', '∧', expr.left, expr.right.left, expr.right.right)
-                if distributed not in memory:
+                if distributed not in memory and distributed == proposition:
                     return True
 
             if expr.operator == '∧' and expr.right.operator == '∨':
                 distributed = self.distribute('∧', '∨', expr.left, expr.right.left, expr.right.right)
-                if distributed not in memory:
+                if distributed not in memory and distributed == proposition:
                     return True
 
         return False

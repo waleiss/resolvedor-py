@@ -49,7 +49,7 @@ class Exportation(Observer):
                     print(f"Aplicando Exportação: {expr} ⇒ {new_expr}")
                     return
 
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         for expr in memory:
             # Verifica a possibilidade de (P ∧ Q) → R
             if expr.operator == '→' and expr.left.operator == '∧':
@@ -63,7 +63,7 @@ class Exportation(Observer):
                     right=Expression(operator='→', left=right_expr, right=consequent)
                 )
 
-                if new_expr not in memory:
+                if new_expr not in memory and new_expr == proposition:
                     return True
 
             # Verifica a possibilidade de P → (Q → R)
@@ -78,7 +78,7 @@ class Exportation(Observer):
                     right=consequent
                 )
 
-                if new_expr not in memory:
+                if new_expr not in memory and new_expr == proposition:
                     return True
 
         return False

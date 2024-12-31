@@ -39,7 +39,7 @@ class ModusTollens(Observer):
                         print(f"Aplicando Modus Tollens: {expr} e {negated_consequent} ⇒ {negated_antecedent}")
                         return  # Adiciona apenas uma vez por iteração
     
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         for expr in memory:
             if expr.operator == '→':  # Se for uma implicação
                 antecedent = expr.left
@@ -51,7 +51,7 @@ class ModusTollens(Observer):
                 # Consequência esperada
                 negated_antecedent = self.get_negated(antecedent)
 
-                if negated_consequent in memory and negated_antecedent not in memory:
+                if negated_consequent in memory and negated_antecedent not in memory and negated_antecedent == proposition:
                     return True  # Regra pode ser aplicada gerando a negação do antecedente
 
         return False  # Não encontrou condições para aplicar a regra

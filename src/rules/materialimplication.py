@@ -40,7 +40,7 @@ class MaterialImplication(Observer):
                     print(f"Aplicando Implicação Material: {expr} ⇒ {new_expr}")
                     return
                 
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         for expr in memory:
             # Verifica a possibilidade de P → Q
             if expr.operator == '→':
@@ -55,5 +55,5 @@ class MaterialImplication(Observer):
                     right=consequent
                 )
 
-                if new_expr not in memory:
+                if new_expr not in memory and new_expr == proposition:
                     return True

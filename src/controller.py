@@ -1,5 +1,6 @@
 from time import sleep
 from .filter_steps import filter_relevant_steps
+from .process_solution import process_inferences
 
 class Controller:
     def __init__(self, rules, memory, conclusion, log):
@@ -8,7 +9,7 @@ class Controller:
         self.conclusion = conclusion  # Conclusão a ser provada
         self.log = log  # Log de execução
 
-    def run(self):
+    def run_solver(self):
         """Executa todas as regras de forma sequencial."""
         print('')
 
@@ -17,7 +18,7 @@ class Controller:
             for rule in self.rules:
                 if self.conclusion not in self.memory:
                     rule.update(self.memory, self.log, self.conclusion)
-
+                    #sleep(0.5)
         print('')
         # Exibe o log de execução
         for step in self.log:
@@ -31,4 +32,12 @@ class Controller:
         for step in self.log:
             if self.log.index(step) in passos:
                 print(step)
+        print('')
+
+    def run_evaluator(self, inferences):
+        
+        process_inferences(inferences, self.rules, self.memory, self.log)
+        print('')
+        for step in self.log:
+            print(step)
         print('')

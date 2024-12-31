@@ -33,7 +33,7 @@ class BiimplicationIntroduction(Observer):
                         return  # Adiciona apenas uma vez por iteração
 
 
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         """Verifica se há uma associação ou dissociação de bi-implicação aplicável na memória."""
         for expr in memory:
 
@@ -44,7 +44,7 @@ class BiimplicationIntroduction(Observer):
                 implication2 = Expression(operator='→', left=right, right=left)
                 biimplication = Expression(operator='↔', left=left, right=right)
 
-                if implication2 in memory and biimplication not in memory:
+                if implication2 in memory and biimplication not in memory and biimplication == proposition:
                     return True
         
         return False

@@ -52,34 +52,13 @@ class Conjunction(Observer):
                         print(f"Aplicando Conjunção (Memória): {left_part} e {right_part} ⇒ {new_expr}")
                         return
 
-    def verify(self, memory, conclusion=None):
-        # Primeiro, verifica se a conclusão pode ser formada
-        if conclusion and conclusion.operator == '∧':
-            left_part = conclusion.left
-            right_part = conclusion.right
+    def verify(self, memory, proposition):
+        # Verifica se a proposição pode ser formada
+        if proposition and proposition.operator == '∧':
+            left_part = proposition.left
+            right_part = proposition.right
 
             if left_part in memory and right_part in memory:
                 return True
-
-        # Em seguida, verifica conjunções que podem ser formadas pela memória
-        for expr in memory:
-            if expr.operator in ['→', '↔', '∧', '∨']:
-                # Verifica necessidade de conjunção na esquerda
-                if expr.left.operator == '∧':
-                    left_part = expr.left.left
-                    right_part = expr.left.right
-                    if left_part in memory and right_part in memory:
-                        new_expr = Expression(operator='∧', left=left_part, right=right_part)
-                        if new_expr not in memory:
-                            return True
-
-                # Verifica necessidade de conjunção na direita
-                if expr.right.operator == '∧':
-                    left_part = expr.right.left
-                    right_part = expr.right.right
-                    if left_part in memory and right_part in memory:
-                        new_expr = Expression(operator='∧', left=left_part, right=right_part)
-                        if new_expr not in memory:
-                            return True
 
         return False

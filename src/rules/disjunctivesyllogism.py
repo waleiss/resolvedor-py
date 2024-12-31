@@ -43,7 +43,7 @@ class DisjunctiveSyllogism(Observer):
                     print(f"Aplicando Silogismo Disjuntivo: {expr} e {negated_disjunct2} ⇒ {disjunct1}")
                     return
     
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         for expr in memory:
             if expr.operator == '∨':  # Se for uma disjunção
                 disjunct1 = expr.left
@@ -53,9 +53,9 @@ class DisjunctiveSyllogism(Observer):
                 negated_disjunct1 = self.get_negated(disjunct1)
                 negated_disjunct2 = self.get_negated(disjunct2)
 
-                if negated_disjunct1 in memory and disjunct2 not in memory:
+                if negated_disjunct1 in memory and disjunct2 not in memory and disjunct2 == proposition:
                     return True  # Regra pode ser aplicada gerando disjunct2
-                if negated_disjunct2 in memory and disjunct1 not in memory:
+                if negated_disjunct2 in memory and disjunct1 not in memory and disjunct1 == proposition:
                     return True  # Regra pode ser aplicada gerando disjunct1
 
         return False  # Não encontrou condições para aplicar a regra

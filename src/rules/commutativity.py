@@ -28,7 +28,7 @@ class Commutativity(Observer):
                     print(f"Aplicando Comutatividade: {expr} ⇒ {commuted_expr}")
                     return
 
-    def verify(self, memory):
+    def verify(self, memory, proposition):
         for expr in memory:
             if expr.operator in ['∧', '∨']:
                 left = expr.left
@@ -38,7 +38,7 @@ class Commutativity(Observer):
                 commuted_expr = Expression(operator=expr.operator, left=right, right=left)
 
                 # Verifica se a comutada ainda não está na memória
-                if commuted_expr not in memory:
+                if commuted_expr not in memory and commuted_expr == proposition:
                     return True  # Regra pode ser aplicada
 
         return False  # Não encontrou condições para aplicar a regra
