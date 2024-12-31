@@ -62,7 +62,7 @@ class Addition(Observer):
 
     def verify(self, memory, proposition):
         # Verifica a conclusão, caso seja fornecida
-        if proposition and proposition == '∨':
+        if proposition and proposition.operator == '∨':
             left_part = proposition.left
             right_part = proposition.right
 

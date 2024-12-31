@@ -39,4 +39,7 @@ class ModusPonens(Observer):
                     # Se sim, adiciona o consequente (B) à memória, se ainda não estiver
                     if consequent not in memory and consequent == proposition:
                         return True
+                if antecedent.operator == '∨' and antecedent.left or antecedent.right in memory:
+                    if consequent not in memory and consequent == proposition:
+                        return True
         return False
