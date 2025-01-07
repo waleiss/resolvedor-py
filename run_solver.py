@@ -1,11 +1,9 @@
 from src.controller import Controller
 from src.rules import *  # Importa todas as regras
-from src.expression import Expression
 from src.parser import parse_expression
 
-# simbolos = ['→', '↔', '¬', '∧', '∨']
 # Regras
-rules = [
+RULES = [
     DisjunctiveSyllogism(),
     ModusTollens(),
     BiimplicationIntroduction(),
@@ -26,10 +24,7 @@ rules = [
     Addition(),
 ]
 
-# Memória inicial
-
 def initialize(memory, conclusion):
-
     print("\nDigite expressões no formato: '¬A', '(A ∨ B) → C', '¬(D ↔ E)'. Operadores válidos: ¬, ∨, ∧, →, ↔.",
           "\nQuando finalizar as premissas e quiser definir a conclusão, digite 'CONCLUSAO'.",
           "\nCaso queira encerrar o programa, digite 'sair'.\n"
@@ -61,17 +56,18 @@ def initialize(memory, conclusion):
     
     return memory, conclusion
 
-memory, conclusion = initialize(memory=[], conclusion=None)
-if not memory or conclusion is None:
-    exit()
+if __name__ == '__main__':
+    memory, conclusion = initialize(memory=[], conclusion=None)
+    if not memory or conclusion is None:
+        exit()
 
-# Log de execução
-problem = 'Problema: ' + ', '.join([str(expr) for expr in memory]) + f' ⊢ {conclusion}'
-log = [problem]
-for expr in memory:
-    log.append(f'({len(log)}) {expr}')
-log.append('---------------------------------------------------------')
+    # Log de execução
+    problem = 'Problema: ' + ', '.join([str(expr) for expr in memory]) + f' ⊢ {conclusion}'
+    log = [problem]
+    for expr in memory:
+        log.append(f'({len(log)}) {expr}')
+    log.append('---------------------------------------------------------')
 
-# Cria e executa o controlador
-controller = Controller(rules, memory, conclusion, log)
-controller.run_solver()
+    # Cria e executa o controlador
+    controller = Controller(RULES, memory, conclusion, log)
+    controller.run_solver()
