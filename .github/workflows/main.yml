@@ -1,0 +1,21 @@
+name: DeployToVPS
+ 
+on:
+  push:
+    branches:
+      - flask_api
+ 
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo checkout
+        uses: actions/checkout@v4
+ 
+      - name: Deploy to vps
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.SERVER_SSH_KEY}} #chave privada ssh atrelada a uma chave publica que está autorizada no arquivo authorized_keys da pasta .ssh do caminho /home/usuario/.ssh
+          REMOTE_HOST: ${{secrets.REMOTE_HOST}} #ip da máquina
+          REMOTE_USER: ${{secrets.REMOTE_USER}} #nome do usuario da maquina, por exemplo, em davi@pc, o user seria davi
+          TARGET: ${{secrets.REMOTE_TARGET}} #pasta em que vão ficar os arquivos do repo
