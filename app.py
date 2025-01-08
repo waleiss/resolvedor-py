@@ -12,7 +12,7 @@ CORS(app)
 
 
 @app.route('/solvejson', methods=['POST'])
-def solve_problem():
+def solve_problem_json():
     """
     Endpoint para resolver problemas de lógica proposicional.
     Recebe um JSON com sentenças e conclusão, e retorna o log de resolução.
