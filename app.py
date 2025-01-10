@@ -45,8 +45,8 @@ def solve_problem_json():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/evaluate', methods=['POST'])
-def evaluate_inferences():
+@app.route('/evaluatejson', methods=['POST'])
+def evaluate_inferences_json():
     """
     Endpoint para avaliar inferências de lógica proposicional.
     Recebe um JSON com sentenças iniciais (premissas) e inferências,
@@ -120,6 +120,49 @@ def solve_problem():
         # Resolvendo o problema
         controller = Controller(RULES, memory, conclusion_expr, log)
         controller.run_solver()
+        return jsonify({"log": log}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/evaluate', methods=['GET'])
+def evaluate_inferences():
+    """
+    Endpoint para avaliar inferências de lógica proposicional.
+    Recebe um único parâmetro 'data' na URL, contendo premissas,
+    conclusão e inferências em formato de string.
+    """
+    try:
+        # Recebendo o parâmetro da URL
+        data = request.args.get("data", "")
+
+        if not data:
+            return jsonify({"error": "O parâmetro 'data' é obrigatório"}), 400
+
+        # Dividindo o texto em partes usando separadores conhecidos
+        try:
+            sections = data.split("|")
+            premises_part = sections[0].replace("premissas:", "").strip()
+            conclusion_part = sections[1].replace("conclusão:", "").strip()
+            inferences_part = sections[2].replace("inferências:", "").strip()
+        except IndexError:
+            return jsonify({"error": "Formato inválido. Use 'premissas: ... | conclusão: ... | inferências: ...'"}), 400
+
+        # Parseando as partes
+        premises = [parse_expression(p.strip()) for p in premises_part.split(",")]
+        conclusion = parse_expression(conclusion_part)
+        inferences = [i.strip() for i in inferences_part.split(";")]
+
+        # Validando os dados
+        if not premises or not conclusion or not inferences:
+            return jsonify({"error": "Premissas, conclusão e inferências são obrigatórias"}), 400
+
+        # Criando o log
+        log = []
+        controller = Controller(rules=RULES_DICT, memory=premises, conclusion=conclusion, log=log)
+        controller.run_evaluator(inferences=inferences)
+
         return jsonify({"log": log}), 200
 
     except Exception as e:
