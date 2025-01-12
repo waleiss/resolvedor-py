@@ -1,4 +1,4 @@
-from time import sleep
+import time
 from .filter_steps import filter_relevant_steps
 from .process_solution import process_inferences
 
@@ -12,13 +12,19 @@ class Controller:
     def run_solver(self):
         """Executa todas as regras de forma sequencial."""
         print('')
+        time_limit = 10
+        start_time = time.time()
 
         while self.conclusion not in self.memory:
+            # Verifica se o limite de tempo foi excedido
+            if time.time() - start_time > time_limit:
+                self.log.append("Tempo limite excedido. A conclusão não foi alcançada.")
+                break
             # Tenta aplicar a regra
             for rule in self.rules:
                 if self.conclusion not in self.memory:
                     rule.update(self.memory, self.log, self.conclusion)
-                    #sleep(0.5)
+
         print('')
         # Exibe o log de execução
         for step in self.log:
