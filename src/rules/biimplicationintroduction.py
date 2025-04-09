@@ -5,7 +5,7 @@ class BiimplicationIntroduction(Observer):
     def __init__(self):
         pass
 
-    def add_to_log(log, memory, expr, implication2, biimplication):
+    def add_to_log(self, log, memory, expr, implication2, biimplication):
         log.append(
             f"({len(log) - 1}) {biimplication}  Introdução de Bi-implicação  "
             f"{memory.index(expr) + 1}, {memory.index(implication2) + 1}"
