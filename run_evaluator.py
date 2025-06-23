@@ -5,7 +5,7 @@ from src.parser import parse_expression
 
 # simbolos = ['→', '↔', '¬', '∧', '∨']
 # Regras
-rules_dict = {
+RULES_DICT = {
     "Silogismo Disjuntivo": DisjunctiveSyllogism(),
     "Modus Tollens": ModusTollens(),
     "Introdução da Bi-implicação": BiimplicationIntroduction(),
@@ -77,14 +77,15 @@ def initialize(premises, conclusion, inferences):
     
     return premises, conclusion, inferences
 
-premises, conclusion, inferences = initialize(premises=[], conclusion=None, inferences=[])
-if not premises or conclusion is None or not inferences:
-    exit()
+if __name__ == '__main__':
+    premises, conclusion, inferences = initialize(premises=[], conclusion=None, inferences=[])
+    if not premises or conclusion is None or not inferences:
+        exit()
 
-# Log de execução
-log = []
+    # Log de execução
+    log = []
 
 
-# Cria e executa o controlador
-controller = Controller(rules=rules_dict, memory=premises, conclusion=conclusion, log=log)
-controller.run_evaluator(inferences=inferences)
+    # Cria e executa o controlador
+    controller = Controller(rules=RULES_DICT, memory=premises, conclusion=conclusion, log=log)
+    controller.run_evaluator(inferences=inferences)
