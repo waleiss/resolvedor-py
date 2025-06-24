@@ -5,7 +5,7 @@ from src.rules import *  # Todas as regras
 from src.controller import Controller
 from run_solver import RULES
 from run_evaluator import RULES_DICT
-
+from config import Config
 app = Flask(__name__)
 CORS(app)
 # Inicialização do resolvedor e regras
@@ -68,10 +68,25 @@ def evaluate_inferences_json():
         conclusion_expr = parse_expression(conclusion)
         log = []
         # Cria e executa o controlador
-        controller = Controller(rules=RULES_DICT, memory=parsed_premises, conclusion=conclusion_expr, log=log)
-        controller.run_evaluator(inferences=inferences)
+        controller = Controller(rules=RULES_DICT, memory=parsed_premises, conclusion=conclusion_expr, log=log, gemini_api_key=Config.GEMINI_API_KEY)
+        
+        results  = controller.run_evaluator(inferences=inferences, premises_str=premises,
+            conclusion_str=conclusion)
 
-        return jsonify({"log": log}), 200
+        feedback = None
+        if results["invalid_inferences"] and controller.llm_feedback:
+            feedback_result = controller.llm_feedback.generate_feedback(
+                premises, conclusion, inferences, log
+            )
+            if feedback_result["status"] == "error":
+                feedback = feedback_result["feedback"]
+                
+        return jsonify({
+            "log": log,
+            "results": results,
+            "feedback": feedback,
+            "success": len(results["invalid_inferences"]) == 0
+        }), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
