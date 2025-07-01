@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resolvedor de Lógica</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Tela de Premissas -->
+        <div id="premises-screen" class="screen active">
+            <h1>Resolvedor de Lógica</h1>
+            
+            <div class="premise-section">
+                <h2>Premissas</h2>
+                <div id="premises-list">
+                    <div class="premise-item">
+                        <span class="premise-label">P1:</span>
+                        <input type="text" class="editable-premise" placeholder="Digite a premissa P1">
+                    </div>
+                </div>
+                <button class="add-premise-btn" onclick="addPremise()">
+                    ➕ Adicionar premissa
+                </button>
+            </div>
+
+            <div class="conclusion-section">
+                <div class="input-group">
+                    <label for="conclusion-input" class="conclusion-label">C:</label>
+                    <input type="text" id="conclusion-input" class="conclusion-input" placeholder="Digite a conclusão" >
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="primary-btn" onclick="solveProblem()">Resolver</button>
+                <button class="nav-btn" onclick="showScreen('solution')">Ir para Solução</button>
+            </div>
+        </div>
+
+        <!-- Tela de Solução -->
+        <div id="solution-screen" class="screen">
+            <h1>Solução do Problema</h1>
+            
+            <!-- Seção de Premissas na tela de solução -->
+            <div class="premise-section">
+                <h2>Premissas</h2>
+                <div id="solution-premises-list">
+                    <!-- Premissas serão copiadas aqui -->
+                </div>
+                <button class="add-premise-btn" onclick="addPremiseInSolution()">
+                    ➕ Adicionar premissa
+                </button>
+            </div>
+
+            <!-- Seção de Conclusão na tela de solução -->
+            <div class="conclusion-section">
+                <div class="input-group">
+                    <label for="solution-conclusion-input" class="conclusion-label">C:</label>
+                    <input type="text" id="solution-conclusion-input" class="conclusion-input" placeholder="Digite a conclusão">
+                </div>
+            </div>
+            
+            <div class="solution-section">
+                <h2>Solução do aluno</h2>
+                <div id="student-solution">
+                    <!-- Passos da solução serão adicionados aqui -->
+                </div>
+                
+                <button class="add-step-btn" onclick="addSolutionStep()">➕ Adicionar passo</button>
+            </div>
+
+            <button class="primary-btn" onclick="evaluateSolution()">Avaliar solução</button>
+
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="showScreen('premises')">Voltar às Premissas</button>
+                <button class="nav-btn active" onclick="showScreen('solution')">Solução</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para resposta da API -->
+    <div id="api-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Resposta da API</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modal-body">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Processando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar premissa -->
+    <div id="premise-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Adicionar Premissa</h3>
+                <button class="close-btn" onclick="closePremiseModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="premise-input">Fórmula:</label>
+                    <input type="text" id="premise-input" placeholder="Ex: P → Q">
+                </div>
+                <button class="primary-btn" onclick="savePremise()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar passo da solução -->
+    <div id="step-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Adicionar Passo</h3>
+                <button class="close-btn" onclick="closeStepModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="step-formula-input">Fórmula:</label>
+                    <input type="text" id="step-formula-input" placeholder="Ex: Q">
+                </div>
+                <div class="input-group">
+                    <label for="step-method-input">Método:</label>
+                    <input type="text" id="step-method-input" placeholder="Ex: Modus Ponens">
+                </div>
+                <div class="input-group">
+                    <label for="step-premises-input">Premissas utilizadas:</label>
+                    <input type="text" id="step-premises-input" placeholder="Ex: P1, P2">
+                </div>
+                <button class="primary-btn" onclick="saveSolutionStep()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

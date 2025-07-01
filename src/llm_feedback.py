@@ -77,44 +77,44 @@ class LLMFeedbackGenerator:
         """Create a detailed prompt for Gemini to generate educational feedback."""
         
         prompt = f"""
-O estudante tentou resolver um problema de inferência lógica, mas cometeu erros.
+                    O estudante tentou resolver um problema de inferência lógica, mas cometeu erros.
 
-PROBLEMA:
-Premissas: {', '.join(premises)}
-Conclusão: {conclusion}
+                    PROBLEMA:
+                    Premissas: {', '.join(premises)}
+                    Conclusão: {conclusion}
 
-TENTATIVA DO ESTUDANTE:
-{chr(10).join(inferences)}
+                    TENTATIVA DO ESTUDANTE:
+                    {chr(10).join(inferences)}
 
-ERROS IDENTIFICADOS:
-{chr(10).join([f"- {error['inference']}" for error in errors])}
+                    ERROS IDENTIFICADOS:
+                    {chr(10).join([f"- {error['inference']}" for error in errors])}
 
-Por favor, forneça um feedback breve e direto, seguindo este formato:
+                    Por favor, forneça um feedback breve e direto, seguindo este formato:
 
-1. ERRO PRINCIPAL:
-   - Nome da regra usada de forma incorreta
-   - Por que a aplicação está errada (1 ou 2 frases)
+                    1. ERRO PRINCIPAL:
+                    - Nome da regra usada de forma incorreta
+                    - Por que a aplicação está errada (1 ou 2 frases)
 
-2. CONCEITO A REVISAR:
-   - Nome do conceito
-   - Explicação rápida (1 ou 2 frases)
+                    2. CONCEITO A REVISAR:
+                    - Nome do conceito
+                    - Explicação rápida (1 ou 2 frases)
 
-3. COMO CORRIGIR:
-   - Qual regra deveria ter sido usada
-   - Como aplicar corretamente (exemplo rápido)
+                    3. COMO CORRIGIR:
+                    - Qual regra deveria ter sido usada
+                    - Como aplicar corretamente (exemplo rápido)
 
-Mantenha o feedback curto (máximo de 3 parágrafos pequenos) e focado no principal erro.
+                    Mantenha o feedback curto (máximo de 3 parágrafos pequenos) e focado no principal erro.
 
-Regras de inferência disponíveis:
-- Modus Ponens, Modus Tollens
-- Silogismo Disjuntivo, Silogismo Hipotético
-- Adição, Simplificação, Conjunção
-- De Morgan, Dupla Negação
-- Transposição, Implicação Material
-- Associatividade, Comutatividade, Distributividade
-- Dilema Construtivo, Exportação
-- Introdução/Dissociação da Bi-implicação
+                    Regras de inferência disponíveis:
+                    - Modus Ponens, Modus Tollens
+                    - Silogismo Disjuntivo, Silogismo Hipotético
+                    - Adição, Simplificação, Conjunção
+                    - De Morgan, Dupla Negação
+                    - Transposição, Implicação Material
+                    - Associatividade, Comutatividade, Distributividade
+                    - Dilema Construtivo, Exportação
+                    - Introdução/Dissociação da Bi-implicação
 
-Seja específico, didático e encorajador. O objetivo é ajudar o estudante a aprender com os erros.
-"""
+                    Seja específico, didático e encorajador. O objetivo é ajudar o estudante a aprender com os erros.
+        """
         return prompt
