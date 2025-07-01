@@ -205,11 +205,7 @@ async function evaluateSolution() {
             const stepPremises = item.querySelector('.step-premises').value.trim();
             
             if (formula && method && stepPremises) {
-                inferences.push({
-                    formula: formula,
-                    method: method,
-                    premises: stepPremises
-                });
+                inferences.push(`${formula}  ${method}  ${stepPremises}`);
             }
         });
         

@@ -26,12 +26,11 @@ def process_inferences(inferences, rules_dict, memory, log, llm_feedback_generat
     
     for inference in inferences:
         parts = inference.split("  ")
-        if len(parts) == 4:
-            step_info, expression_str, rule_name, refs = parts
+        if len(parts) == 3:
+            expression_str, rule_name, refs = parts
             
             try:
-                # Extract step number and expression
-                step_number = int(re.match(r"\((\d+)\)", step_info).group(1))
+                # Extract expression
                 new_expr = parse_expression(expression_str)
                 
                 # Add expression to memory
