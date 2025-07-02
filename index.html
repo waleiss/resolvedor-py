@@ -28,14 +28,14 @@
 
             <div class="conclusion-section">
                 <div class="input-group">
-                    <label for="conclusion-input" class="conclusion-label">C:</label>
+                    <label for="conclusion-input" class="conclusion-label">Conclusão:</label>
                     <input type="text" id="conclusion-input" class="conclusion-input" placeholder="Digite a conclusão" >
                 </div>
             </div>
 
             <div class="button-group">
                 <button class="primary-btn" onclick="solveProblem()">Resolver</button>
-                <button class="nav-btn" onclick="showScreen('solution')">Ir para Solução</button>
+                <button class="nav-btn" onclick="showScreen('solution')">Ir para o Avaliador</button>
             </div>
         </div>
 
@@ -74,9 +74,26 @@
             <button class="primary-btn" onclick="evaluateSolution()">Avaliar solução</button>
 
             <div class="nav-buttons">
-                <button class="nav-btn" onclick="showScreen('premises')">Voltar às Premissas</button>
+                <button class="nav-btn" onclick="showScreen('premises')">Voltar ao Resolvedor</button>
                 <!-- <button class="nav-btn active" onclick="showScreen('solution')">Solução</button> -->
             </div>
+        </div>
+    </div>
+
+    <!-- Teclado Lógico Flutuante -->
+    <div id="logicalKeyboard" class="logical-keyboard">
+        <div class="keyboard-header">
+            <span>Símbolos Lógicos</span>
+            <button id="toggleKeyboard" class="toggle-btn">−</button>
+        </div>
+        <div class="keyboard-buttons">
+            <button id="btnAnd" class="logic-btn">∧</button>
+            <button id="btnOr" class="logic-btn">∨</button>
+            <button id="btnNot" class="logic-btn">¬</button>
+            <button id="btnImplies" class="logic-btn">→</button>
+            <button id="btnEquiv" class="logic-btn">↔</button>
+            <button id="btnOpenParen" class="logic-btn">(</button>
+            <button id="btnCloseParen" class="logic-btn">)</button>
         </div>
     </div>
 
@@ -131,7 +148,7 @@
                 </div>
                 <div class="input-group">
                     <label for="step-premises-input">Premissas utilizadas:</label>
-                    <input type="text" id="step-premises-input" placeholder="Ex: P1, P2">
+                    <input type="text" id="step-premises-input" placeholder="Ex: 1, 2">
                 </div>
                 <button class="primary-btn" onclick="saveSolutionStep()">Adicionar</button>
             </div>

@@ -34,7 +34,7 @@ def solve_problem_json():
         log = [problem]
         for expr in memory:
             log.append(f'({len(log)}) {expr}')
-        log.append('---------------------------------------------------------')
+        log.append('-----------------------------------------')
         
         # Resolvendo o problema
         controller = Controller(RULES, memory, conclusion_expr, log)
@@ -185,4 +185,4 @@ def evaluate_inferences():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3001, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

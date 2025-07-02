@@ -287,3 +287,82 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Variável para controlar o input ativo
+let activeInput = null;
+
+// Função para fazer o teclado lógico funcionar com qualquer input
+function typeKey(operator) {
+    // Se não há input ativo, tenta encontrar um input focado
+    if (!activeInput) {
+        activeInput = document.activeElement;
+        // Verifica se o elemento focado é um input de texto
+        if (!activeInput || activeInput.tagName !== 'INPUT' || activeInput.type !== 'text') {
+            // Se não há input focado, não faz nada
+            return;
+        }
+    }
+    
+    const cursorPos = activeInput.selectionStart;
+    const textBefore = activeInput.value.substring(0, cursorPos);
+    const textAfter = activeInput.value.substring(cursorPos);
+
+    activeInput.value = textBefore + operator + textAfter;
+    activeInput.focus();
+    activeInput.setSelectionRange(cursorPos + operator.length, cursorPos + operator.length);
+}
+
+// Função para alternar minimizar/maximizar o teclado
+function toggleKeyboard() {
+    const keyboard = document.getElementById('logicalKeyboard');
+    const toggleBtn = document.getElementById('toggleKeyboard');
+    
+    keyboard.classList.toggle('minimized');
+    
+    if (keyboard.classList.contains('minimized')) {
+        toggleBtn.textContent = '+';
+    } else {
+        toggleBtn.textContent = '−';
+    }
+}
+
+// Adiciona Event Listeners para rastrear input ativo
+document.addEventListener('DOMContentLoaded', function() {
+    // Rastreia quando um input recebe foco
+    document.addEventListener('focusin', function(e) {
+        if (e.target.tagName === 'INPUT' && e.target.type === 'text') {
+            activeInput = e.target;
+        }
+    });
+    
+    // Limpa o input ativo quando perde o foco (opcional)
+    document.addEventListener('focusout', function(e) {
+        // Mantém o último input ativo para facilitar o uso
+        // activeInput = null;
+    });
+    
+    // Event Listeners para os botões do teclado lógico
+    document.getElementById("btnAnd").addEventListener("click", () => typeKey("∧"));
+    document.getElementById("btnOr").addEventListener("click", () => typeKey("∨"));
+    document.getElementById("btnNot").addEventListener("click", () => typeKey("¬"));
+    document.getElementById("btnImplies").addEventListener("click", () => typeKey("→"));
+    document.getElementById("btnEquiv").addEventListener("click", () => typeKey("↔"));
+    document.getElementById("btnOpenParen").addEventListener("click", () => typeKey("("));
+    document.getElementById("btnCloseParen").addEventListener("click", () => typeKey(")"));
+    
+    // Event Listener para o botão de toggle
+    document.getElementById("toggleKeyboard").addEventListener("click", toggleKeyboard);
+
+    // Outros event listeners existentes
+    document.getElementById('premise-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            savePremise();
+        }
+    });
+    
+    document.getElementById('step-premises-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            saveSolutionStep();
+        }
+    });
+});
