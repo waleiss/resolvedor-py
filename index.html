@@ -80,6 +80,12 @@
         </div>
     </div>
 
+    <!-- Botão de logout (opcional) -->
+    <div id="user-info" class="user-info" style="display: none;">
+        <span id="user-display"></span>
+        <button onclick="logout()" class="logout-btn">Sair</button>
+    </div>
+
     <!-- Teclado Lógico Flutuante -->
     <div id="logicalKeyboard" class="logical-keyboard">
         <div class="keyboard-header">
@@ -151,6 +157,23 @@
                     <input type="text" id="step-premises-input" placeholder="Ex: 1, 2">
                 </div>
                 <button class="primary-btn" onclick="saveSolutionStep()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para nome do usuário -->
+    <div id="username-modal" class="modal username-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Bem-vindo!</h3>
+            </div>
+            <div class="modal-body">
+                <p>Para começar, digite seu nome:</p>
+                <div class="input-group">
+                    <label for="username-input">Nome:</label>
+                    <input type="text" id="username-input" placeholder="Digite seu nome" maxlength="50">
+                </div>
+                <button class="primary-btn" onclick="saveUsername()">Continuar</button>
             </div>
         </div>
     </div>

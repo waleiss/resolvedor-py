@@ -1,6 +1,106 @@
 let premiseCount = 1;
 let solutionStepCount = 0;
 let currentModal = null; // Para controlar qual modal está aberto
+let currentUsername = null; // Nome do usuário atual
+
+// Função para verificar se há um nome de usuário salvo
+function checkUsername() {
+    const username = getCookie('username');
+    if (!username) {
+        showUsernameModal();
+    } else {
+        currentUsername = username;
+        showUserInfo(username);
+        console.log(`Usuário logado: ${username}`);
+    }
+}
+
+// Função para mostrar o modal do nome do usuário
+function showUsernameModal() {
+    document.getElementById('username-modal').classList.add('active');
+    document.getElementById('username-input').focus();
+}
+
+// Função para salvar o nome do usuário
+async function saveUsername() {
+    const username = document.getElementById('username-input').value.trim();
+    
+    if (!username) {
+        alert('Por favor, digite seu nome');
+        return;
+    }
+    
+    // Validar nome (apenas letras, números, espaços e alguns caracteres especiais)
+    if (!/^[a-zA-ZÀ-ÿ\s\-_0-9]{1,50}$/.test(username)) {
+        alert('Nome inválido. Use apenas letras, números, espaços, hífen ou underscore');
+        return;
+    }
+    
+    try {
+        // Chamar o backend para criar o arquivo do usuário
+        const response = await fetch('http://127.0.0.1:5000/create_user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: username })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            // Salvar nome no cookie por 30 dias
+            setCookie('username', username, 30);
+            currentUsername = username;
+            
+            // Mostrar informações do usuário
+            showUserInfo(username);
+            
+            // Fechar modal
+            document.getElementById('username-modal').classList.remove('active');
+            
+            console.log(`Usuário criado/logado: ${username}`);
+        } else {
+            alert(`Erro: ${result.error}`);
+        }
+    } catch (error) {
+        alert(`Erro de conexão: ${error.message}`);
+    }
+}
+
+// Função para definir cookie
+function setCookie(name, value, days) {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+}
+
+// Função para obter cookie
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
+// Função para deletar cookie (logout)
+function deleteCookie(name) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 2050 00:00:00 UTC; path=/;`;
+}
+
+// Função para fazer logout
+function logout() {
+    if (confirm('Tem certeza que deseja sair?')) {
+        deleteCookie('username');
+        currentUsername = null;
+        hideUserInfo();
+        location.reload();
+    }
+}
 
 function showScreen(screen) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -212,7 +312,8 @@ async function evaluateSolution() {
         const data = {
             premises: premises,
             conclusion: conclusion,
-            inferences: inferences
+            inferences: inferences,
+            username: currentUsername
         };
         
         // Chamada da API para avaliar
@@ -260,6 +361,17 @@ function showAPIResponse(response) {
     `;
 }
 
+// Função para mostrar informações do usuário
+function showUserInfo(username) {
+    document.getElementById('user-display').textContent = username;
+    document.getElementById('user-info').style.display = 'block';
+}
+
+// Função para ocultar informações do usuário
+function hideUserInfo() {
+    document.getElementById('user-info').style.display = 'none';
+}
+
 // Fechar modais ao clicar fora
 window.onclick = function(event) {
     const modals = document.querySelectorAll('.modal');
@@ -284,6 +396,13 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('step-premises-input').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             saveSolutionStep();
+        }
+    });
+    
+    // Event listener para Enter no campo do nome do usuário
+    document.getElementById('username-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            saveUsername();
         }
     });
 });
@@ -365,4 +484,16 @@ document.addEventListener('DOMContentLoaded', function() {
             saveSolutionStep();
         }
     });
+    
+    // Event listener para Enter no campo do nome do usuário
+    document.getElementById('username-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            saveUsername();
+        }
+    });
+});
+
+// Verificar usuário ao carregar a página
+document.addEventListener('DOMContentLoaded', function() {
+    checkUsername();
 });
