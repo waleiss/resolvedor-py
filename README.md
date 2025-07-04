@@ -54,7 +54,8 @@ O projeto tem como finalidade:
 
 #### 3. Modelo do Estudante
 - **Avaliador de Desempenho**: Contabiliza acertos e erros nas soluções
-- **Estatísticas**: Calcula taxa de sucesso e identifica padrões de erro
+- **Banco de estudantes**: Pede o nome do usuário e salva seu progresso em um json
+- **Estatísticas**: Calcula taxa de sucesso
 - **Potencial para Adaptação**: Base para implementar sistemas adaptativos baseados no desempenho
 
 #### 4. Estrutura de Tópicos e Questões
