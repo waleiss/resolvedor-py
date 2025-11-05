@@ -1,6 +1,6 @@
 from .expression import Expression
 
-def parse_expression(input_str):
+def parse_expression(input_str) -> Expression:
     """Converte uma string para um objeto Expression."""
     input_str = input_str.strip()
 
