@@ -46,7 +46,7 @@ class StorageService:
         # Gera timestamp e nome do arquivo
         timestamp = datetime.now()
         timestamp_str = timestamp.strftime("%Y%m%d_%H%M%S")
-        filename = f"experiment_{timestamp_str}.json"
+        filename = f"solver_to_llm_{timestamp_str}.json"
         filepath = self.data_dir / filename
         
         # Monta o objeto de resultado
@@ -163,7 +163,7 @@ class StorageService:
                         "filename": filepath.name,
                         "timestamp": data["metadata"]["timestamp"],
                         "problem": data["problem"]["description"],
-                        "pipeline": data["metadata"].get("pipeline", "solver_to_llm")
+                        "pipeline": data["metadata"]["pipeline"]
                     })
             except Exception:
                 continue
