@@ -1,8 +1,10 @@
 import os
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from typing import List
 
+load_dotenv()
 
 class GeminiService:
     """Serviço para interação com a API do Gemini"""

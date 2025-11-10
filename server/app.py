@@ -1,9 +1,7 @@
-from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 from src.routes import register_routes
 
-load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
