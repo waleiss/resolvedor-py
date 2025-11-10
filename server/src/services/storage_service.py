@@ -22,7 +22,7 @@ class StorageService:
         """Garante que o diretório de dados existe"""
         self.data_dir.mkdir(parents=True, exist_ok=True)
     
-    def save_experiment_result(
+    def save_solver_to_llm_result(
         self,
         problem: str,
         sentences: List[str],
@@ -53,7 +53,8 @@ class StorageService:
         result = {
             "metadata": {
                 "timestamp": timestamp.isoformat(),
-                "filename": filename
+                "filename": filename,
+                "pipeline": "solver_to_llm"
             },
             "problem": {
                 "description": problem,
@@ -83,6 +84,68 @@ class StorageService:
                 "error": str(e)
             }
     
+    def save_llm_to_evaluator_result(
+        self,
+        problem: str,
+        sentences: List[str],
+        conclusion: str,
+        gemini_solution: Dict[str, Any],
+        evaluator_log: List[str]
+    ) -> Dict[str, Any]:
+        """
+        Salva o resultado do pipeline: Gemini resolve -> Avaliador avalia.
+        
+        Args:
+            problem: Descrição do problema
+            sentences: Lista de sentenças (premissas)
+            conclusion: Conclusão do problema
+            gemini_solution: Solução gerada pelo Gemini
+            evaluator_log: Log de avaliação do evaluator
+            
+        Returns:
+            Dict com informações sobre o arquivo salvo
+        """
+        # Gera timestamp e nome do arquivo
+        timestamp = datetime.now()
+        timestamp_str = timestamp.strftime("%Y%m%d_%H%M%S")
+        filename = f"llm_to_eval_{timestamp_str}.json"
+        filepath = self.data_dir / filename
+        
+        # Monta o objeto de resultado
+        result = {
+            "metadata": {
+                "timestamp": timestamp.isoformat(),
+                "filename": filename,
+                "pipeline": "llm_to_evaluator"
+            },
+            "problem": {
+                "description": problem,
+                "sentences": sentences,
+                "conclusion": conclusion
+            },
+            "gemini_solution": gemini_solution,
+            "evaluator_result": {
+                "log": evaluator_log
+            }
+        }
+        
+        # Salva o arquivo
+        try:
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(result, f, ensure_ascii=False, indent=2)
+            
+            return {
+                "success": True,
+                "filepath": str(filepath),
+                "filename": filename
+            }
+            
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
     def get_all_experiments(self) -> List[Dict[str, Any]]:
         """
         Retorna lista de todos os experimentos salvos.
@@ -92,14 +155,15 @@ class StorageService:
         """
         experiments = []
         
-        for filepath in self.data_dir.glob("experiment_*.json"):
+        for filepath in self.data_dir.glob("*.json"):
             try:
                 with open(filepath, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     experiments.append({
                         "filename": filepath.name,
                         "timestamp": data["metadata"]["timestamp"],
-                        "problem": data["problem"]["description"]
+                        "problem": data["problem"]["description"],
+                        "pipeline": data["metadata"].get("pipeline", "solver_to_llm")
                     })
             except Exception:
                 continue

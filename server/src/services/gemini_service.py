@@ -16,6 +16,103 @@ class GeminiService:
         self.client = genai.Client(api_key=api_key)
         self.model_id = "gemini-2.5-flash"
     
+    def solve_problem(self, problem: str, sentences: List[str], conclusion: str) -> dict:
+        """
+        Pede ao Gemini para resolver um problema de lógica proposicional.
+        
+        Args:
+            problem: String com o problema formatado (sentenças ⊢ conclusão)
+            sentences: Lista de sentenças (premissas)
+            conclusion: Conclusão a ser provada
+            
+        Returns:
+            dict com a solução do Gemini e inferências extraídas
+        """
+        prompt = self._build_solver_prompt(problem, sentences, conclusion)
+        
+        try:
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.1,  # Baixa temperatura para respostas mais determinísticas
+                )
+            )
+            
+            # Extrai as inferências da resposta do Gemini
+            solution_text = response.text
+            inferences = self._extract_inferences(solution_text)
+            
+            return {
+                "success": True,
+                "solution": solution_text,
+                "inferences": inferences,
+                "model": self.model_id
+            }
+            
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "model": self.model_id
+            }
+    
+    def _build_solver_prompt(self, problem: str, sentences: List[str], conclusion: str) -> str:
+        """Constrói o prompt para o Gemini resolver o problema"""
+        sentences_formatted = "\n".join([f"{i+1}. {s}" for i, s in enumerate(sentences)])
+        
+        prompt = f"""Você é um especialista em lógica proposicional. Resolva o seguinte problema usando regras de inferência válidas.
+
+**Problema:**
+{problem}
+
+**Premissas:**
+{sentences_formatted}
+
+**Conclusão a provar:**
+{conclusion}
+
+**Instruções:**
+1. Use apenas regras de inferência válidas (Modus Ponens, Modus Tollens, Silogismo Hipotético, Silogismo Disjuntivo, Adição, Simplificação, Conjunção, Resolução, etc.)
+2. Para cada passo da dedução, forneça EXATAMENTE no formato:
+   (N) expressão | Nome_da_Regra | premissas_usadas
+   
+   Onde:
+   - N é o número sequencial do passo (começando após as premissas iniciais)
+   - expressão é a nova fórmula derivada
+   - Nome_da_Regra é o nome exato da regra aplicada (ex: "Modus Ponens", "Adição", "Simplificação")
+   - premissas_usadas são os números das linhas usadas, separados por vírgula
+
+**Exemplo de formato esperado:**
+({len(sentences)+1}) P | Simplificação | 1
+({len(sentences)+2}) P → Q | Premissa | {len(sentences)+2}
+({len(sentences)+3}) Q | Modus Ponens | {len(sentences)+1}, {len(sentences)+2}
+
+Forneça a solução completa passo a passo."""
+
+        return prompt
+    
+    def _extract_inferences(self, solution_text: str) -> List[str]:
+        """
+        Extrai as inferências formatadas da resposta do Gemini.
+        Procura por linhas no formato: (N) expressão | Regra | refs
+        """
+        import re
+        
+        inferences = []
+        # Regex para capturar linhas no formato esperado
+        pattern = r'\((\d+)\)\s+(.+?)\s+\|\s+(.+?)\s+\|\s+(.+?)(?:\n|$)'
+        
+        matches = re.findall(pattern, solution_text, re.MULTILINE)
+        
+        for match in matches:
+            step_num, expression, rule, refs = match
+            # Reconstrói no formato esperado pelo avaliador
+            inference = f"({step_num}) | {expression.strip()} | {rule.strip()} | {refs.strip()}"
+            inferences.append(inference)
+        
+        return inferences
+    
     def evaluate_solution(self, problem: str, solution_log: List[str]) -> dict:
         """
         Envia a solução do problema para o Gemini avaliar.

@@ -12,7 +12,9 @@ export async function submitToPipeline1(argument: Argument): Promise<any> {
   });
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorBody = await response.text();
+    
+    throw new Error(`HTTP error! status: ${response.status}. Mensagem: ${errorBody}`);
   }
 
   return response.json();
@@ -28,7 +30,9 @@ export async function submitToPipeline2(argument: Argument): Promise<any> {
   });
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorBody = await response.text();
+    
+    throw new Error(`HTTP error! status: ${response.status}. Mensagem: ${errorBody}`);
   }
 
   return response.json();

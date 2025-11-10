@@ -19,7 +19,7 @@ def process_inferences(inferences, rules_dict, memory, log):
     """
     for inference in inferences:
         # Divide usando dois espaços como delimitador
-        parts = inference.split("  ")
+        parts = inference.split(' | ')
         if len(parts) == 4:
             step_info, expression_str, rule_name, refs = parts
             

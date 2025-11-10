@@ -82,13 +82,13 @@ async function handleSubmit(pipeline: 1 | 2) {
 
 <div class="card bg-base-200 shadow-xl">
   <div class="card-body">
-    <h3 class="card-title">Problema de Lógica</h3>
+    <h3 class="card-title mb-2">Problema de Lógica</h3>
     
     <div class="form-control gap-3">
       <!-- Sentences -->
       <div>
         <div class="label">
-          <span class="label-text">Sentenças (premissas)</span>
+          <span class="label-text font-semibold mb-2">Sentenças (premissas)</span>
         </div>
         {#each sentences as sentence, index (index)}
           <div class="flex gap-2 mb-2">
@@ -131,7 +131,7 @@ async function handleSubmit(pipeline: 1 | 2) {
       <!-- Conclusion -->
       <div class="form-control">
         <div class="label">
-          <span class="label-text font-semibold">Conclusão:</span>
+          <span class="label-text font-semibold mb-2">Conclusão:</span>
         </div>
         <div class="relative">
           <input
