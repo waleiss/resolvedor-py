@@ -4,10 +4,11 @@ from .process_solution import process_inferences
 
 class Controller:
     def __init__(self, rules, memory, conclusion, log):
-        self.rules = rules  # Lista de regras (agentes)
-        self.memory = memory  # Memória de trabalho compartilhada
-        self.conclusion = conclusion  # Conclusão a ser provada
-        self.log = log  # Log de execução
+        self.rules = rules
+        self.memory = memory
+        self.conclusion = conclusion
+        self.log = log
+        self.full_log = []  # Log completo (opcional)
 
     def run_solver(self):
         """Executa todas as regras de forma sequencial."""
@@ -16,34 +17,26 @@ class Controller:
         start_time = time.time()
 
         while self.conclusion not in self.memory:
-            # Verifica se o limite de tempo foi excedido
             if time.time() - start_time > time_limit:
                 self.log.append("Tempo limite excedido. A conclusão não foi alcançada.")
                 break
-            # Tenta aplicar a regra
             for rule in self.rules:
                 if self.conclusion not in self.memory:
                     rule.update(self.memory, self.log, self.conclusion)
 
+        # Salva o log completo
+        self.full_log = self.log.copy()
+        
         print('')
-        # Exibe o log de execução
-        for step in self.log:
+        for step in self.full_log:
             print(step)
         print('')
 
+        # Filtra e substitui pelo log relevante
         print('Passos realmente relevantes:')
-        # Exibe o log de execução
-        passos = filter_relevant_steps(self.log, len(self.log) - 1)
-
-        for step in self.log:
-            if self.log.index(step) in passos:
-                print(step)
-        print('')
-
-    def run_evaluator(self, inferences):
+        relevant_indices = filter_relevant_steps(self.log, len(self.log) - 1)
+        self.log[:] = [step for i, step in enumerate(self.log) if i in relevant_indices]
         
-        process_inferences(inferences, self.rules, self.memory, self.log)
-        print('\n')
         for step in self.log:
             print(step)
         print('')

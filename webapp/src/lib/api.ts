@@ -1,6 +1,6 @@
 import type { Argument } from '../types';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:3001';
 
 export async function submitToPipeline1(argument: Argument): Promise<any> {
   const response = await fetch(`${API_BASE_URL}/pipeline1`, {

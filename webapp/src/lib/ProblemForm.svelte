@@ -157,7 +157,7 @@ async function handleSubmit(pipeline: 1 | 2) {
       
       <!-- Result -->
       {#if result}
-        <div class="alert alert-success">
+        <div class="alert alert-success my-5">
           <span>Problema enviado com sucesso!</span>
         </div>
         <div class="mockup-code">
