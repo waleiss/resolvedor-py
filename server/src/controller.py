@@ -40,3 +40,11 @@ class Controller:
         for step in self.log:
             print(step)
         print('')
+    
+    def run_evaluator(self, inferences):
+        
+        process_inferences(inferences, self.rules, self.memory, self.log)
+        print('\n')
+        for step in self.log:
+            print(step)
+        print('')
