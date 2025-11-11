@@ -175,9 +175,13 @@ async function handleSubmit(pipeline: 1 | 2) {
           {#if loading}
             <span class="loading loading-spinner"></span>
           {:else}
-            <span class="material-symbols-outlined">send</span>
+            <div class="flex items-center gap-1">
+              <span class="font-bold text-lg">W</span>
+              <span class="material-symbols-outlined">arrow_right_alt</span>
+              <span class="material-symbols-outlined">smart_toy</span>
+            </div>
+            <span class="mt-1">Pipeline 1</span>
           {/if}
-          Pipeline 1
         </button>
         <button
           class="btn btn-secondary"
@@ -187,9 +191,13 @@ async function handleSubmit(pipeline: 1 | 2) {
           {#if loading}
             <span class="loading loading-spinner"></span>
           {:else}
-            <span class="material-symbols-outlined">rocket_launch</span>
+            <div class="flex items-center gap-1">
+              <span class="material-symbols-outlined">smart_toy</span>
+              <span class="material-symbols-outlined">arrow_right_alt</span>
+              <span class="font-bold text-lg">W</span>
+            </div>
+            <span class="mt-1">Pipeline 2</span>
           {/if}
-          Pipeline 2
         </button>
       </div>
     </div>
