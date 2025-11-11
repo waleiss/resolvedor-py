@@ -21,3 +21,8 @@ cd webapp/
 npm install
 npm run dev
 ```
+
+É necessário criar um arquivo .env dentro da pasta ```server/``` contendo a variável de ambiente da chave de API do Gemini:
+```
+GEMINI_API_KEY=<sua chave>
+```
