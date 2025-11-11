@@ -87,7 +87,7 @@ class GeminiService:
 
 **Exemplo de formato esperado:**
 ({len(sentences)+1}) P | Simplificação | 1
-({len(sentences)+2}) P → Q | Premissa | {len(sentences)+2}
+({len(sentences)+2}) P → Q | Dissociação de Bi-implicação | {len(sentences)+2}
 ({len(sentences)+3}) Q | Modus Ponens | {len(sentences)+1}, {len(sentences)+2}
 
 Forneça a solução completa passo a passo."""
