@@ -1,12 +1,12 @@
 <script lang="ts">
 import Router from 'svelte-spa-router'
-import Navbar from "./lib/Navbar.svelte"
-import ProblemsPage from './lib/ProblemsPage.svelte'
 import Home from './lib/Home.svelte'
+import Navbar from "./lib/Navbar.svelte"
+import ViewResults from './lib/ViewResults.svelte'
 
 const routes = {
   '/': Home,
-  '/problemas': ProblemsPage,
+  '/problemas': ViewResults,
 };
 </script>
 

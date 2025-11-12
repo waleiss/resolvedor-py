@@ -63,34 +63,34 @@ class GeminiService:
         """Constrói o prompt para o Gemini resolver o problema"""
         sentences_formatted = "\n".join([f"{i+1}. {s}" for i, s in enumerate(sentences)])
         
-        prompt = f"""Você é um especialista em lógica proposicional. Resolva o seguinte problema usando regras de inferência válidas.
+        prompt = f"""Você é um especialista em lógica proposicional. Resolva o seguinte problema usando regras de inferência ou equivalência válidas.
 
-**Problema:**
-{problem}
+    **Problema:**
+    {problem}
 
-**Premissas:**
-{sentences_formatted}
+    **Premissas:**
+    {sentences_formatted}
 
-**Conclusão a provar:**
-{conclusion}
+    **Conclusão a provar:**
+    {conclusion}
 
-**Instruções:**
-1. Use apenas regras de inferência válidas (Modus Ponens, Modus Tollens, Silogismo Hipotético, Silogismo Disjuntivo, Adição, Simplificação, Conjunção, Resolução, etc.)
-2. Para cada passo da dedução, forneça EXATAMENTE no formato:
-   (N) expressão | Nome_da_Regra | premissas_usadas
-   
-   Onde:
-   - N é o número sequencial do passo (começando após as premissas iniciais)
-   - expressão é a nova fórmula derivada
-   - Nome_da_Regra é o nome exato da regra aplicada (ex: "Modus Ponens", "Adição", "Simplificação")
-   - premissas_usadas são os números das linhas usadas, separados por vírgula
+    **Instruções:**
+    1. Use apenas regras de inferência ou equivalência válidas (Silogismo Disjuntivo, Modus Tollens, Introdução da Bi-implicação, Dissociação de Bi-implicação, Modus Ponens, Silogismo Hipotético, Transposição, Associatividade, Comutatividade, Distributividade, De Morgan, Dilema Construtivo, Exportação, Implicação Material, Conjunção, Simplificação, Dupla Negação, Adição, etc)
+    2. Para cada passo da dedução, forneça EXATAMENTE no formato:
+       (N) expressão | Nome_da_Regra | premissas_usadas
+       
+       Onde:
+       - N é o número sequencial do passo (começando após as premissas iniciais)
+       - expressão é a nova fórmula derivada
+       - Nome_da_Regra é o nome exato da regra aplicada (ex: "Modus Ponens", "Adição", "Simplificação")
+       - premissas_usadas são os números das linhas usadas, separados por vírgula
 
-**Exemplo de formato esperado:**
-({len(sentences)+1}) P | Simplificação | 1
-({len(sentences)+2}) P → Q | Dissociação de Bi-implicação | {len(sentences)+2}
-({len(sentences)+3}) Q | Modus Ponens | {len(sentences)+1}, {len(sentences)+2}
+    **Exemplo de formato esperado:**
+    ({len(sentences)+1}) P | Simplificação | 1
+    ({len(sentences)+2}) P → Q | Dissociação de Bi-implicação | {len(sentences)+2}
+    ({len(sentences)+3}) Q | Modus Ponens | {len(sentences)+1}, {len(sentences)+2}
 
-Forneça a solução completa passo a passo."""
+    Forneça a solução completa passo a passo."""
 
         return prompt
     

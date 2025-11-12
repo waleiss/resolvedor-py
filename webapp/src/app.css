@@ -24,7 +24,7 @@
   
   /* Accent color */
   --color-accent: oklch(41.076% 0.20445 295.63);
-  --color-accent-content: oklch(0.15 0.02 240);
+  --color-accent-content: oklch(0.95 0.005 240);
   
   /* Neutral color */
   --color-neutral: oklch(0.3 0.01 240);
@@ -56,4 +56,9 @@
 .btn:focus-visible {
   outline: none !important;
   box-shadow: none !important;
+}
+
+.badge {
+  @apply rounded-full;
+  @apply p-3;
 }
