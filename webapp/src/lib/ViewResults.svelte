@@ -97,7 +97,7 @@
   {:else}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {#each experiments as experiment}
-        <div class="card bg-base-200 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer" role="button" tabindex="0" onclick={() => openExperiment(experiment.filename)} onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? openExperiment(experiment.filename) : null}>
+        <div class="card bg-base-200 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer border-neutral hover:border-primary" role="button" tabindex="0" onclick={() => openExperiment(experiment.filename)} onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? openExperiment(experiment.filename) : null}>
           <div class="card-body">
             <div class="badge badge-accent mb-2">{getPipelineName(experiment.pipeline)}</div>
             <h2 class="card-title text-sm">{experiment.problem}</h2>
@@ -106,7 +106,7 @@
               {formatDate(experiment.timestamp)}
             </p>
             <div class="card-actions justify-end mt-2">
-              <button class="btn btn-sm btn-primary">
+              <button class="btn btn-sm btn-neutral">
                 Ver Detalhes
                 <span class="material-symbols-outlined">arrow_forward</span>
               </button>
