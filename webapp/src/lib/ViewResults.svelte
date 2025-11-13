@@ -99,7 +99,7 @@
       {#each experiments as experiment}
         <div class="card bg-base-200 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer border-neutral hover:border-primary" role="button" tabindex="0" onclick={() => openExperiment(experiment.filename)} onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? openExperiment(experiment.filename) : null}>
           <div class="card-body">
-            <div class="badge badge-accent mb-2">{getPipelineName(experiment.pipeline)}</div>
+            <div class="badge badge-outline badge-accent mb-2">{getPipelineName(experiment.pipeline)}</div>
             <h2 class="card-title text-sm">{experiment.problem}</h2>
             <p class="text-xs opacity-70">
               <span class="material-symbols-outlined text-sm">schedule</span>

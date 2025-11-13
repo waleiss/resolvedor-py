@@ -46,20 +46,13 @@
   /* Error color */
   --color-error: oklch(81% 0.117 11.638);
   --color-error-content: oklch(0.15 0.02 240);
-}
-
-.btn {
-  border: none !important;
-  outline: none !important;
-}
-
-.btn:focus,
-.btn:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-.badge {
-  @apply rounded-full;
-  @apply p-3;
+  
+  --radius-selector: 1rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
 }
