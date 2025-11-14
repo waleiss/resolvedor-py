@@ -19,8 +19,12 @@ class Expression:
             return str(self.left)
         
         if self.operator == '¬':
-            # Negação
-            return f"¬{self._format_operand(self.left)}"
+            formatted_left = self._format_operand(self.left)
+            
+            if not top_level and isinstance(self.left, Expression) and self.left.operator == '¬':
+                return f"¬({formatted_left})"
+            
+            return f"¬{formatted_left}"
         
         # Expressões binárias
         left_str = self._format_operand(self.left)

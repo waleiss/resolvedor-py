@@ -19,20 +19,38 @@ class DeMorgan(Observer):
             return expression.left
         return Expression(operator='¬', left=expression)
 
-    def apply_de_morgan(self, operator, left_expr, right_expr):
+    def apply_de_morgan(self, operator, left_expr, right_expr, mode):
         """
         Aplica a transformação de De Morgan com base no operador e subexpressões fornecidos.
         """
-        negated_left = self.get_negated(left_expr)
-        negated_right = self.get_negated(right_expr)
-        new_operator = '∧' if operator == '∨' else '∨'
-        return Expression(operator=new_operator, left=negated_left, right=negated_right)
+        match mode:
+            case 1:
+                negated_left = self.get_negated(left_expr)
+                negated_right = self.get_negated(right_expr)
+                new_operator = '∧' if operator == '∨' else '∨'
+                return Expression(operator=new_operator, left=negated_left, right=negated_right)
+           
+            case 2:
+                negated_left = self.get_negated(left_expr)
+                negated_right = self.get_negated(right_expr)
+                new_operator = '∧' if operator == '∨' else '∨'
+                new_inner = Expression(operator=new_operator, left=negated_left, right=negated_right)
+                return Expression(operator='¬', left=new_inner)
+    
 
     def update(self, memory, log, conclusion=None):
         for expr in memory:
             if expr.operator == '¬' and expr.left.operator in ('∨', '∧'):
                 inner_expr = expr.left
-                transformed = self.apply_de_morgan(inner_expr.operator, inner_expr.left, inner_expr.right)
+                transformed = self.apply_de_morgan(inner_expr.operator, inner_expr.left, inner_expr.right, 1)
+
+                if transformed not in memory:
+                    memory.append(transformed)
+                    print(f"Aplicando De Morgan: {expr} ⇒ {transformed}")
+                    return
+            
+            elif expr.operator in ('∨', '∧'):
+                transformed = self.apply_de_morgan(expr.operator, expr.left, expr.right, 2)
 
                 if transformed not in memory:
                     memory.append(transformed)
@@ -43,9 +61,14 @@ class DeMorgan(Observer):
         for expr in memory:
             if expr.operator == '¬' and expr.left.operator in ('∨', '∧'):
                 inner_expr = expr.left
-                transformed = self.apply_de_morgan(inner_expr.operator, inner_expr.left, inner_expr.right)
+                transformed = self.apply_de_morgan(inner_expr.operator, inner_expr.left, inner_expr.right, 1)
 
                 if transformed not in memory and transformed == proposition:
                     return True
 
+            elif expr.operator in ('∨', '∧'):
+                transformed = self.apply_de_morgan(expr.operator, expr.left, expr.right, 2)
+                
+                if transformed not in memory and transformed == proposition:
+                    return True  
         return False
