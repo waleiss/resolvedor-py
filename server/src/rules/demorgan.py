@@ -46,6 +46,7 @@ class DeMorgan(Observer):
 
                 if transformed not in memory:
                     memory.append(transformed)
+                    self.add_to_log(log, memory, expr, transformed)
                     print(f"Aplicando De Morgan: {expr} ⇒ {transformed}")
                     return
             
@@ -54,6 +55,7 @@ class DeMorgan(Observer):
 
                 if transformed not in memory:
                     memory.append(transformed)
+                    self.add_to_log(log, memory, expr, transformed)
                     print(f"Aplicando De Morgan: {expr} ⇒ {transformed}")
                     return
 
