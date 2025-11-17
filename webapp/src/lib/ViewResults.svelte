@@ -106,7 +106,7 @@
               {formatDate(experiment.timestamp)}
             </p>
             <div class="card-actions justify-end mt-2">
-              <button class="btn btn-sm btn-neutral">
+              <button class="btn btn-outline btn-sm btn-neutral">
                 Ver Detalhes
                 <span class="material-symbols-outlined">arrow_forward</span>
               </button>
