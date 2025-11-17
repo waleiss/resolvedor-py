@@ -32,15 +32,15 @@
   --color-neutral-content: oklch(0.15 0.02 240);
   
   /* Info color */
-  --color-info: oklch(79.1% 0.15 220);
+  --color-info: oklch(82.5% 0.117 220);
   --color-info-content: oklch(0.15 0.02 240);
   
   /* Success color */
-  --color-success: oklch(83.3% 0.235 140);
+  --color-success: oklch(82.3% 0.165 140);
   --color-success-content: oklch(0.15 0.02 240);
   
   /* Warning color */
-  --color-warning: oklch(0.75 0.15 70);
+  --color-warning: oklch(0.80 0.15 70);
   --color-warning-content: oklch(0.15 0.02 240);
   
   /* Error color */
