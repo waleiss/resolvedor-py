@@ -1,19 +1,19 @@
 <script lang="ts">
-import type { Argument } from '../types';
-import { submitToPipeline1, submitToPipeline2 } from './api';
-import { onMount } from 'svelte';
+import type { Argument } from '../types'
+import { submitToPipeline1, submitToPipeline2 } from './api'
+import ResultsBox from './ResultsBox.svelte'
 
 let sentences = $state<string[]>(['']);
 let conclusion = $state<string>('');
 let loading = $state<boolean>(false);
 let error = $state<string | null>(null);
 let result = $state<any>(null);
+let lastPipeline = $state<number | null>(null);
 let sentenceInputs: HTMLInputElement[] = [];
 let conclusionInput: HTMLInputElement | null = null;
 
 function addSentence() {
   sentences = [...sentences, ''];
-  // Focus the new input after it's added
   setTimeout(() => {
     const newIndex = sentences.length - 1;
     sentenceInputs[newIndex]?.focus();
@@ -23,7 +23,6 @@ function addSentence() {
 function removeSentence(index: number) {
   if (sentences.length > 1) {
     sentences = sentences.filter((_, i) => i !== index);
-    // Focus the previous or next input
     setTimeout(() => {
       const focusIndex = Math.min(index, sentences.length - 1);
       sentenceInputs[focusIndex]?.focus();
@@ -31,7 +30,6 @@ function removeSentence(index: number) {
   }
 }
 
-// Handle input events to ensure state updates
 function handleSentenceInput(index: number, event: Event) {
   const target = event.target as HTMLInputElement;
   sentences[index] = target.value;
@@ -46,7 +44,6 @@ async function handleSubmit(pipeline: 1 | 2) {
   error = null;
   result = null;
   
-  // Filter out empty sentences
   const filteredSentences = sentences.filter(s => s.trim() !== '');
   
   if (filteredSentences.length === 0) {
@@ -69,8 +66,10 @@ async function handleSubmit(pipeline: 1 | 2) {
   try {
     if (pipeline === 1) {
       result = await submitToPipeline1(argument);
+      lastPipeline = 1; // ← SALVAR O PIPELINE USADO
     } else {
       result = await submitToPipeline2(argument);
+      lastPipeline = 2; // ← SALVAR O PIPELINE USADO
     }
   } catch (e: any) {
     error = e.message || 'Erro ao enviar o problema';
@@ -155,16 +154,6 @@ async function handleSubmit(pipeline: 1 | 2) {
         </div>
       {/if}
       
-      <!-- Result -->
-      {#if result}
-        <div class="alert alert-success my-5">
-          <span>Problema enviado com sucesso!</span>
-        </div>
-        <div class="mockup-code">
-          <pre><code>{JSON.stringify(result, null, 2)}</code></pre>
-        </div>
-      {/if}
-      
       <!-- Submit buttons -->
       <div class="card-actions justify-end gap-2 mt-4">
         <button
@@ -203,3 +192,5 @@ async function handleSubmit(pipeline: 1 | 2) {
     </div>
   </div>
 </div>
+
+<ResultsBox bind:result bind:lastPipeline />
