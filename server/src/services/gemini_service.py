@@ -75,17 +75,18 @@ class GeminiService:
     {conclusion}
 
     **Instruções:**
-    1. Use apenas regras de inferência ou equivalência válidas (Silogismo Disjuntivo, Modus Tollens, Introdução da Bi-implicação, Dissociação de Bi-implicação, Modus Ponens, Silogismo Hipotético, Transposição, Associatividade, Comutatividade, Distributividade, De Morgan, Dilema Construtivo, Exportação, Implicação Material, Conjunção, Simplificação, Dupla Negação, Adição, etc)
-    2. Para cada passo da dedução, forneça EXATAMENTE no formato:
+    1. Use apenas regras de inferência ou equivalência válidas (Silogismo Disjuntivo, Modus Tollens, Introdução da Bi-implicação, Dissociação de Bi-implicação, Modus Ponens, Silogismo Hipotético, Transposição, Associatividade, Comutatividade, Distributividade, De Morgan, Dilema Construtivo, Exportação, Implicação Material, Conjunção, Simplificação, Dupla Negação e Adição).
+    2. Simplifique diretamente novas expressões que contenham dupla negação (ex: ao inferir ¬(¬P) ∨ Q, elimine a negação e escreva P ∨ Q em vez de ¬(¬P) ∨ Q).
+    3. Para cada passo da dedução, forneça EXATAMENTE no formato:
        (N) expressão | Nome_da_Regra | premissas_usadas
        
-       Onde:
+       Onde tem esses 4 campos separados por " | " os quais:
        - N é o número sequencial do passo (começando após as premissas iniciais)
        - expressão é a nova fórmula derivada
        - Nome_da_Regra é o nome exato da regra aplicada (ex: "Modus Ponens", "Adição", "Simplificação")
        - premissas_usadas são os números das linhas usadas, separados por vírgula
 
-    **Exemplo de formato esperado:**
+    **Exemplos de formato esperado:**
     ({len(sentences)+1}) P | Simplificação | 1
     ({len(sentences)+2}) P → Q | Dissociação de Bi-implicação | {len(sentences)+2}
     ({len(sentences)+3}) Q | Modus Ponens | {len(sentences)+1}, {len(sentences)+2}
