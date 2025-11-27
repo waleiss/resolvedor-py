@@ -40,6 +40,25 @@ class MaterialImplication(Observer):
                     print(f"Aplicando Implicação Material: {expr} ⇒ {new_expr}")
                     return
                 
+            # Verifica a forma ¬P ∨ Q
+            if expr.operator == '∨':
+                antecedent = expr.left
+                consequent = expr.right
+
+                negated_antecedent = self.get_negated(antecedent)
+
+                new_expr = Expression(
+                    operator='→',
+                    left=negated_antecedent,
+                    right=consequent
+                )
+
+                if new_expr not in memory:
+                    memory.append(new_expr)
+                    self.add_to_log(log, memory, expr, new_expr)
+                    print(f"Aplicando Implicação Material: {expr} ⇒ {new_expr}")
+                    return
+
     def verify(self, memory, proposition):
         for expr in memory:
             # Verifica a possibilidade de P → Q
@@ -57,3 +76,20 @@ class MaterialImplication(Observer):
 
                 if new_expr not in memory and new_expr == proposition:
                     return True
+            
+            # Verifica a possibilidade de ¬P ∨ Q
+            if expr.operator == '∨':
+                antecedent = expr.left
+                consequent = expr.right
+
+                negated_antecedent = self.get_negated(antecedent)
+
+                new_expr = Expression(
+                    operator='→',
+                    left=negated_antecedent,
+                    right=consequent
+                )
+
+                if new_expr not in memory and new_expr == proposition:
+                    return True
+        return False
