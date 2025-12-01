@@ -1,26 +1,39 @@
-import json
 import os
 from datetime import datetime
-from pathlib import Path
+from dotenv import load_dotenv
 from typing import List, Dict, Any
+from pymongo import MongoClient, DESCENDING
+from pymongo.errors import ConnectionFailure, PyMongoError
 
+load_dotenv()
 
 class StorageService:
-    """Serviço para armazenar resultados em arquivos JSON"""
+    """Serviço para armazenar resultados no MongoDB"""
     
-    def __init__(self, data_dir: str = "data"):
+    def __init__(self):
         """
-        Inicializa o serviço de armazenamento.
+        Inicializa o serviço de armazenamento com MongoDB.
+        Conecta ao banco de dados 'tcc' e collection 'experiments'.
+        """
+        mongodb_uri = os.getenv('MONGODB_URI')
+        if not mongodb_uri:
+            raise ValueError("MONGODB_URI não encontrada no arquivo .env")
         
-        Args:
-            data_dir: Diretório onde os arquivos serão salvos
-        """
-        self.data_dir = Path(data_dir)
-        self._ensure_data_directory()
-    
-    def _ensure_data_directory(self):
-        """Garante que o diretório de dados existe"""
-        self.data_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            self.client = MongoClient(mongodb_uri)
+            # Testa a conexão
+            self.client.admin.command('ping')
+            
+            self.db = self.client['tcc']
+            self.collection = self.db['experiments']
+            
+            # Cria índice no timestamp para ordenação eficiente
+            self.collection.create_index([("metadata.timestamp", DESCENDING)])
+            
+        except ConnectionFailure as e:
+            raise ConnectionError(f"Falha ao conectar ao MongoDB: {str(e)}")
+        except Exception as e:
+            raise Exception(f"Erro ao inicializar StorageService: {str(e)}")
     
     def save_solver_to_llm_result(
         self,
@@ -31,7 +44,7 @@ class StorageService:
         gemini_evaluation: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
-        Salva o resultado de um experimento em arquivo JSON.
+        Salva o resultado de um experimento no MongoDB.
         
         Args:
             problem: Descrição do problema
@@ -41,19 +54,18 @@ class StorageService:
             gemini_evaluation: Avaliação do Gemini
             
         Returns:
-            Dict com informações sobre o arquivo salvo
+            Dict com informações sobre o documento salvo
         """
-        # Gera timestamp e nome do arquivo
+        # Gera timestamp e identificador
         timestamp = datetime.now()
         timestamp_str = timestamp.strftime("%Y%m%d_%H%M%S")
-        filename = f"solver_to_llm_{timestamp_str}.json"
-        filepath = self.data_dir / filename
+        doc_id = f"solver_to_llm_{timestamp_str}"
         
-        # Monta o objeto de resultado
-        result = {
+        # Monta o documento
+        document = {
+            "_id": doc_id,
             "metadata": {
                 "timestamp": timestamp.isoformat(),
-                "filename": filename,
                 "pipeline": "solver_to_llm"
             },
             "problem": {
@@ -67,17 +79,21 @@ class StorageService:
             "gemini_evaluation": gemini_evaluation
         }
         
-        # Salva o arquivo
+        # Salva no MongoDB
         try:
-            with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(result, f, ensure_ascii=False, indent=2)
+            self.collection.insert_one(document)
             
             return {
                 "success": True,
-                "filepath": str(filepath),
-                "filename": filename
+                "document_id": doc_id,
+                "filename": doc_id  # Mantém compatibilidade com código existente
             }
             
+        except PyMongoError as e:
+            return {
+                "success": False,
+                "error": f"Erro ao salvar no MongoDB: {str(e)}"
+            }
         except Exception as e:
             return {
                 "success": False,
@@ -93,7 +109,7 @@ class StorageService:
         evaluator_log: List[str]
     ) -> Dict[str, Any]:
         """
-        Salva o resultado do pipeline: Gemini resolve -> Avaliador avalia.
+        Salva o resultado do pipeline: Gemini resolve -> Avaliador avalia no MongoDB.
         
         Args:
             problem: Descrição do problema
@@ -103,19 +119,18 @@ class StorageService:
             evaluator_log: Log de avaliação do evaluator
             
         Returns:
-            Dict com informações sobre o arquivo salvo
+            Dict com informações sobre o documento salvo
         """
-        # Gera timestamp e nome do arquivo
+        # Gera timestamp e identificador
         timestamp = datetime.now()
         timestamp_str = timestamp.strftime("%Y%m%d_%H%M%S")
-        filename = f"llm_to_eval_{timestamp_str}.json"
-        filepath = self.data_dir / filename
+        doc_id = f"llm_to_eval_{timestamp_str}"
         
-        # Monta o objeto de resultado
-        result = {
+        # Monta o documento
+        document = {
+            "_id": doc_id,
             "metadata": {
                 "timestamp": timestamp.isoformat(),
-                "filename": filename,
                 "pipeline": "llm_to_evaluator"
             },
             "problem": {
@@ -129,17 +144,21 @@ class StorageService:
             }
         }
         
-        # Salva o arquivo
+        # Salva no MongoDB
         try:
-            with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(result, f, ensure_ascii=False, indent=2)
+            self.collection.insert_one(document)
             
             return {
                 "success": True,
-                "filepath": str(filepath),
-                "filename": filename
+                "document_id": doc_id,
+                "filename": doc_id  # Mantém compatibilidade com código existente
             }
             
+        except PyMongoError as e:
+            return {
+                "success": False,
+                "error": f"Erro ao salvar no MongoDB: {str(e)}"
+            }
         except Exception as e:
             return {
                 "success": False,
@@ -148,54 +167,78 @@ class StorageService:
     
     def get_all_experiments(self) -> List[Dict[str, Any]]:
         """
-        Retorna lista de todos os experimentos salvos.
+        Retorna lista de todos os experimentos salvos no MongoDB.
         
         Returns:
             Lista de dicionários com informações dos experimentos
         """
-        experiments = []
-        
-        for filepath in self.data_dir.glob("*.json"):
-            try:
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    experiments.append({
-                        "filename": filepath.name,
-                        "timestamp": data["metadata"]["timestamp"],
-                        "problem": data["problem"]["description"],
-                        "pipeline": data["metadata"]["pipeline"]
-                    })
-            except Exception:
-                continue
-        
-        # Ordena por timestamp (mais recente primeiro)
-        experiments.sort(key=lambda x: x["timestamp"], reverse=True)
-        return experiments
+        try:
+            # Busca todos os documentos, ordenados por timestamp (mais recente primeiro)
+            cursor = self.collection.find(
+                {},
+                {
+                    "_id": 1,
+                    "metadata.timestamp": 1,
+                    "metadata.pipeline": 1,
+                    "problem.description": 1
+                }
+            ).sort("metadata.timestamp", DESCENDING)
+            
+            experiments = []
+            for doc in cursor:
+                experiments.append({
+                    "filename": doc["_id"],  # Usa _id como filename para compatibilidade
+                    "timestamp": doc["metadata"]["timestamp"],
+                    "problem": doc["problem"]["description"],
+                    "pipeline": doc["metadata"]["pipeline"]
+                })
+            
+            return experiments
+            
+        except PyMongoError as e:
+            print(f"Erro ao buscar experimentos: {str(e)}")
+            return []
+        except Exception as e:
+            print(f"Erro inesperado ao buscar experimentos: {str(e)}")
+            return []
     
-    def get_experiment(self, filename: str) -> Dict[str, Any]:
+    def get_experiment(self, document_id: str) -> Dict[str, Any]:
         """
-        Recupera um experimento específico pelo nome do arquivo.
+        Recupera um experimento específico pelo ID do documento.
         
         Args:
-            filename: Nome do arquivo do experimento
+            document_id: ID do documento do experimento (equivalente ao filename)
             
         Returns:
             Dados do experimento ou dict com erro
         """
-        filepath = self.data_dir / filename
-        
-        if not filepath.exists():
-            return {
-                "success": False,
-                "error": "Experimento não encontrado"
-            }
-        
         try:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                data = json.load(f)
+            document = self.collection.find_one({"_id": document_id})
+            
+            if not document:
+                return {
+                    "success": False,
+                    "error": "Experimento não encontrado"
+                }
+            
+            # Remove o _id do retorno para evitar problemas de serialização
+            doc_data = dict(document)
+            doc_data.pop("_id", None)
+            
+            # Adiciona o _id como filename na metadata para compatibilidade
+            if "metadata" not in doc_data:
+                doc_data["metadata"] = {}
+            doc_data["metadata"]["filename"] = document_id
+            
             return {
                 "success": True,
-                "data": data
+                "data": doc_data
+            }
+            
+        except PyMongoError as e:
+            return {
+                "success": False,
+                "error": f"Erro ao buscar experimento: {str(e)}"
             }
         except Exception as e:
             return {
