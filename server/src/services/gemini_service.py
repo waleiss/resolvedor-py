@@ -156,8 +156,8 @@ class GeminiService:
         
         prompt = f"""Você é um especialista em lógica proposicional. Analise a resolução do problema abaixo e avalie, para cada dos passos da solução (ou seja, não considerar as premissas acima da linha '------------'), o seguinte:
 
-1. Se a resolução está correta e se as regras de inferência foram aplicadas adequadamente
-2. Se há algum erro ou inconsistência, explique o que está errado na solução
+1. Se a resolução está correta e se as regras de inferência foram aplicadas adequadamente.
+2. Se há algum erro ou inconsistência, explique o que está errado na solução.
 
 **Problema:**
 {problem}
@@ -165,6 +165,6 @@ class GeminiService:
 **Resolução apresentada:**
 {log_text}
 
-Por favor, forneça uma avaliação sucinta e objetiva."""
+Por favor, forneça uma avaliação sucinta e objetiva. Além disso, analise a qualidade da solução (por exemplo, se ela poderia ser otimizada)."""
 
         return prompt
