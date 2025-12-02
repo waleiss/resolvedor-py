@@ -290,8 +290,7 @@ class StorageService:
             "sentences": sentences,
             "conclusion": conclusion,
             "difficulty": difficulty.lower(),
-            "created_at": timestamp.isoformat(),
-            "usage_count": 0  # Contador de quantas vezes foi usado
+            "created_at": timestamp.isoformat()
         }
         
         try:
@@ -344,8 +343,7 @@ class StorageService:
                     "sentences": doc["sentences"],
                     "conclusion": doc["conclusion"],
                     "difficulty": doc["difficulty"],
-                    "created_at": doc["created_at"],
-                    "usage_count": doc.get("usage_count", 0)
+                    "created_at": doc["created_at"]
                 }
                 problems.append(problem)
             
@@ -377,20 +375,13 @@ class StorageService:
                     "error": "Problema não encontrado"
                 }
             
-            # Incrementa contador de uso
-            self.problems_collection.update_one(
-                {"_id": problem_id},
-                {"$inc": {"usage_count": 1}}
-            )
-            
             problem = {
                 "id": document["_id"],
                 "description": document["description"],
                 "sentences": document["sentences"],
                 "conclusion": document["conclusion"],
                 "difficulty": document["difficulty"],
-                "created_at": document["created_at"],
-                "usage_count": document.get("usage_count", 0)
+                "created_at": document["created_at"]
             }
             
             return {
