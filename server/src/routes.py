@@ -256,3 +256,69 @@ def register_routes(app):
             
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+    
+    @app.route('/problems', methods=['GET'])
+    def list_problems():
+        """
+        Lista todos os problemas cadastrados.
+        Query params opcionais:
+        - difficulty: filtrar por dificuldade (easy, medium, hard)
+        """
+        try:
+            # Pega o filtro opcional
+            difficulty = request.args.get('difficulty')
+            
+            problems = storage_service.get_all_problems(difficulty=difficulty)
+            
+            return jsonify({
+                "success": True,
+                "count": len(problems),
+                "problems": problems
+            }), 200
+            
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    @app.route('/problems', methods=['POST'])
+    def add_problem():
+        """
+        Adiciona um novo problema ao banco de dados.
+        Body JSON esperado:
+        {
+            "description": "p → q, p ⊢ q",
+            "sentences": ["p → q", "p"],
+            "conclusion": "q",
+            "difficulty": "easy"  // opcional: easy, medium, hard (padrão: medium)
+        }
+        """
+        try:
+            data = request.json
+            
+            # Valida campos obrigatórios
+            description = data.get("description")
+            sentences = data.get("sentences")
+            conclusion = data.get("conclusion")
+            
+            if not description or not sentences or not conclusion:
+                return jsonify({
+                    "error": "Campos obrigatórios: description, sentences, conclusion"
+                }), 400
+            
+            # Campo opcional
+            difficulty = data.get("difficulty", "medium")
+            
+            # Salva o problema
+            result = storage_service.add_problem(
+                description=description,
+                sentences=sentences,
+                conclusion=conclusion,
+                difficulty=difficulty
+            )
+            
+            if not result["success"]:
+                return jsonify({"error": result["error"]}), 400
+            
+            return jsonify(result), 201
+            
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500

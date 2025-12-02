@@ -1,4 +1,4 @@
-import type { Argument, ExperimentListItem, Experiment } from '../types';
+import type { Argument, ExperimentListItem, Experiment, SavedProblem } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
@@ -67,4 +67,20 @@ export async function getExperiment(filename: string): Promise<Experiment> {
   }
 
   return response.json();
+}
+
+export async function getProblems(): Promise<SavedProblem[]> {
+  const response = await fetch(`${API_BASE_URL}/problems`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.problems;
 }

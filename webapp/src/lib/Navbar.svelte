@@ -17,6 +17,12 @@
       </li>
       <li>
       <a href="#/problemas" class="hover:text-primary flex items-center gap-1">
+        <span class="material-symbols-outlined text-[20px]">quiz</span>
+        Problemas
+      </a>
+      </li>
+      <li>
+      <a href="#/resultados" class="hover:text-primary flex items-center gap-1">
         <span class="material-symbols-outlined text-[20px]">description</span>
         Resultados
       </a>

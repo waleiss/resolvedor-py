@@ -1,4 +1,5 @@
 <script lang="ts">
+import { onMount } from 'svelte';
 import type { Argument } from '../types'
 import { submitToPipeline1, submitToPipeline2 } from './api'
 import ResultsBox from './ResultsBox.svelte'
@@ -11,6 +12,28 @@ let result = $state<any>(null);
 let lastPipeline = $state<number | null>(null);
 let sentenceInputs: HTMLInputElement[] = [];
 let conclusionInput: HTMLInputElement | null = null;
+
+onMount(() => {
+  // Extrai query params da hash
+  const hash = window.location.hash;
+  const queryString = hash.split('?')[1];
+  
+  if (queryString) {
+    const params = new URLSearchParams(queryString);
+    const prefillSentences = params.get('sentences');
+    const prefillConclusion = params.get('conclusion');
+    
+    if (prefillSentences && prefillConclusion) {
+      try {
+        sentences = JSON.parse(prefillSentences);
+        conclusion = prefillConclusion;
+      } catch (e) {
+        console.error('Erro ao fazer parse dos parâmetros:', e);
+      }
+    }
+  }
+});
+
 
 function addSentence() {
   sentences = [...sentences, ''];
@@ -66,10 +89,10 @@ async function handleSubmit(pipeline: 1 | 2) {
   try {
     if (pipeline === 1) {
       result = await submitToPipeline1(argument);
-      lastPipeline = 1; // ← SALVAR O PIPELINE USADO
+      lastPipeline = 1;
     } else {
       result = await submitToPipeline2(argument);
-      lastPipeline = 2; // ← SALVAR O PIPELINE USADO
+      lastPipeline = 2;
     }
   } catch (e: any) {
     error = e.message || 'Erro ao enviar o problema';

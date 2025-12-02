@@ -56,3 +56,12 @@ export interface ExperimentListItem {
   problem: string;
   pipeline: string;
 }
+
+export interface SavedProblem {
+  id: string;
+  description: string;
+  sentences: string[];
+  conclusion: string;
+  difficulty: string;
+  created_at: string;
+}

@@ -3,10 +3,12 @@ import Router from 'svelte-spa-router'
 import Home from './lib/Home.svelte'
 import Navbar from "./lib/Navbar.svelte"
 import ViewResults from './lib/ViewResults.svelte'
+import ProblemsBank from './lib/ProblemsBank.svelte';
 
 const routes = {
   '/': Home,
-  '/problemas': ViewResults,
+  '/resultados': ViewResults,
+  '/problemas': ProblemsBank
 };
 </script>
 
