@@ -124,7 +124,7 @@
               </div>
             </div>
             
-            <div class="text-xs space-y-2">
+            <div class="text-xs space-y-2 mt-4">
               <div>
                 <p class="font-semibold mb-1">Premissas:</p>
                 <ul class="list-disc list-inside ml-2">
