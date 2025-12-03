@@ -115,7 +115,8 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {#each problems as problem}
         <div class="card bg-base-200 shadow-xl hover:shadow-2xl transition-shadow">
-          <div class="card-body">
+          <div class="card-body flex flex-col justify-between h-full">
+            <div>
             <div class="flex justify-between items-start mb-2">
               <h3 class="card-title text-sm flex-1">{problem.description}</h3>
               <div class="badge {getDifficultyColor(problem.difficulty)} badge-sm">
@@ -135,6 +136,7 @@
               <div>
                 <p class="font-semibold">Conclusão:</p>
                 <code class="ml-2">{problem.conclusion}</code>
+                </div>
               </div>
             </div>
             
