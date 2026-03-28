@@ -16,7 +16,11 @@ def extract_references(step):
 def process_inferences(inferences, rules_dict, memory, log):
     """
     Processa as inferências recebidas, extrai a regra usada e as premissas referenciadas.
+    Rastreia passos inválidos e invalida todos os passos que dependem deles.
     """
+    # Inicializar valid_steps com os índices das premissas já na memória
+    valid_steps = set(range(1, len(memory) + 1))  # Premissas são passos válidos por padrão
+    
     for inference in inferences:
         # Divide usando dois espaços como delimitador
         parts = inference.split(' | ')
@@ -33,18 +37,26 @@ def process_inferences(inferences, rules_dict, memory, log):
             # Extrair a regra e as referências
             references = extract_references(refs)  # Avaliar a lista de referências
             
+            # Verificar se alguma referência é de um passo inválido
+            depends_on_invalid = any(ref not in valid_steps for ref in references if ref > 0)
+            
+            if depends_on_invalid:
+                log.append(f"Inferência inválida (depende de passo inválido): {inference}")
+                continue
+            
             # Verificar se a regra está no dicionário
             if rule_name in rules_dict:
                 rule = rules_dict[rule_name]
                 # Criar lista com as expressões referenciadas
-                referenced_expressions = [memory[i-1] for i in references]  # Referências são 1-based
+                referenced_expressions = [memory[i-1] for i in references if i > 0]  # Referências são 1-based
                 
                 # Chamar o método verify() da regra
                 if rule.verify(referenced_expressions, new_expr):
+                    valid_steps.add(step_number)  # Marcar como válido
                     log.append(f"Inferência válida: {inference}")
                 else:
                     log.append(f"Inferência inválida: {inference}")
             else:
-                print(f"Regra não encontrada: {rule_name}")
+                log.append(f"Inferência inválida (regra não encontrada: {rule_name}): {inference}")
         else:
             print(f"Formato inválido de inferência: {inference}")

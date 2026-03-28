@@ -4,7 +4,7 @@ flask-cors>=6.0.1
 python-dotenv>=1.2.1
 
 #LLM Gemini
-google-genai>=1.49.0
+google-genai>=1.62.0
 
 #MongoDB 
 pymongo[srv]>=4.14.0

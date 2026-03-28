@@ -16,7 +16,7 @@ class GeminiService:
             raise ValueError("GEMINI_API_KEY não encontrada no arquivo .env")
         
         self.client = genai.Client(api_key=api_key)
-        self.model_id = "gemini-2.5-flash"
+        self.model_id = "gemini-3-flash-preview"
     
     def solve_problem(self, problem: str, sentences: List[str], conclusion: str) -> dict:
         """
@@ -35,10 +35,7 @@ class GeminiService:
         try:
             response = self.client.models.generate_content(
                 model=self.model_id,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    temperature=0.1,  # Baixa temperatura para respostas mais determinísticas
-                )
+                contents=prompt
             )
             
             # Extrai as inferências da resposta do Gemini
