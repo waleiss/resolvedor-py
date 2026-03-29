@@ -28,7 +28,6 @@ export interface ExperimentAgent {
 
 export interface SolverOutput {
   success: boolean;
-  raw_text: string | null;
   steps_raw: string[];
 }
 

@@ -178,13 +178,6 @@
               <div class="badge badge-error mb-2">Erro</div>
             {/if}
 
-            {#if selectedExperiment.solver_output.raw_text}
-              <div class="mb-3">
-                <p class="font-semibold mb-1">Saída textual:</p>
-                <div class="whitespace-pre-wrap text-sm bg-base-200 p-2 rounded">{selectedExperiment.solver_output.raw_text}</div>
-              </div>
-            {/if}
-
             {#if selectedExperiment.solver_output.steps_raw.length > 0}
               <div>
                 <p class="font-semibold mb-1">Passos:</p>

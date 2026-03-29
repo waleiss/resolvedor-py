@@ -173,7 +173,6 @@ def register_routes(app):
                 },
                 "solver_output": {
                     "success": True,
-                    "raw_text": None,
                     "steps_raw": _extract_solver_steps(log)
                 },
                 "evaluation_output": {
@@ -271,7 +270,6 @@ def register_routes(app):
                 },
                 "solver_output": {
                     "success": gemini_solution.get("success", False),
-                    "raw_text": gemini_solution.get("solution"),
                     "steps_raw": gemini_solution.get("inferences", [])
                 },
                 "evaluation_output": {

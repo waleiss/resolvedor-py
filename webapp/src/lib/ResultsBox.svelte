@@ -57,13 +57,6 @@
             <div class="bg-base-300 p-3 rounded-lg overflow-y-auto max-h-128">
               <p class="text-sm mb-2"><strong>Modelo:</strong> {experiment.solver.model}</p>
 
-              {#if experiment.solver_output.raw_text}
-                <div class="mb-3">
-                  <p class="font-semibold mb-1">Saída textual:</p>
-                  <div class="whitespace-pre-wrap text-sm bg-base-200 p-2 rounded">{experiment.solver_output.raw_text}</div>
-                </div>
-              {/if}
-
               {#if experiment.solver_output.steps_raw?.length > 0}
                 <div>
                   <p class="font-semibold mb-1">Passos:</p>

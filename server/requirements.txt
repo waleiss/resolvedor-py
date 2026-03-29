@@ -5,6 +5,7 @@ python-dotenv>=1.2.1
 
 #LLM Gemini
 google-genai>=1.62.0
+pydantic>=2.0.0
 
 #MongoDB 
 pymongo[srv]>=4.14.0
