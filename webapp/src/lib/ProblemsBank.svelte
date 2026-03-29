@@ -93,7 +93,7 @@
       {:else}
         <span class="material-symbols-outlined">refresh</span>
       {/if}
-      Atualizar
+      Recarregar
     </button>
   </div>
 

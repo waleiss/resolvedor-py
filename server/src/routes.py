@@ -141,7 +141,7 @@ def register_routes(app):
             controller.run_solver()
 
             # Passo 2: Envia para o Gemini avaliar
-            gemini_evaluation = gemini_service.evaluate_solution(problem, log)
+            gemini_evaluation = gemini_service.evaluate_solution(problem, _extract_solver_steps(log))
 
             # Verifica se o Gemini retornou erro
             if not gemini_evaluation.get("success", False):
@@ -181,6 +181,14 @@ def register_routes(app):
                     "log": None
                 }
             }
+
+            analysis_result = gemini_service.generate_structured_analysis(
+                pipeline="solver_to_llm",
+                problem_data=experiment_document["problem"],
+                solver_output=experiment_document["solver_output"],
+                evaluation_output=experiment_document["evaluation_output"],
+            )
+            experiment_document["analysis"] = analysis_result.get("analysis", None)
 
             save_result = storage_service.save_experiment_result(experiment_document)
 
@@ -278,6 +286,14 @@ def register_routes(app):
                     "log": log
                 }
             }
+
+            analysis_result = gemini_service.generate_structured_analysis(
+                pipeline="llm_to_evaluator",
+                problem_data=experiment_document["problem"],
+                solver_output=experiment_document["solver_output"],
+                evaluation_output=experiment_document["evaluation_output"],
+            )
+            experiment_document["analysis"] = analysis_result.get("analysis", None)
 
             save_result = storage_service.save_experiment_result(experiment_document)
 

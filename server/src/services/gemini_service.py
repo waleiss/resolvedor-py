@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from google import genai
-from typing import List
+from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field
 
 load_dotenv()
@@ -20,6 +20,23 @@ class LogicalSolution(BaseModel):
     passos: List[LogicalStep]
 
 
+class AnalysisOutput(BaseModel):
+    """Análise estruturada da qualidade/correção da solução"""
+    num_steps: int = Field(ge=0)
+    num_valid_steps: int = Field(ge=0)
+    num_invalid_steps: int = Field(ge=0)
+    reaches_target_conclusion: bool
+    is_fully_correct: bool
+    error_type: Optional[
+        Literal[
+            "aplicação inválida de regra",
+            "regra inexistente",
+            "conclusão não alcançada",
+            "uso incorreto de referência a linhas anteriores",
+        ]
+    ] = None
+
+
 class GeminiService:
     """Serviço para interação com a API do Gemini"""
     
@@ -31,6 +48,7 @@ class GeminiService:
         
         self.client = genai.Client(api_key=api_key)
         self.model_id = "gemini-3-flash-preview"
+        self.analysis_model_id = "gemini-3.1-flash-lite-preview"
     
     def solve_problem(self, problem: str, sentences: List[str], conclusion: str) -> dict:
         """
@@ -172,7 +190,7 @@ Conclusão: {conclusion}
         """Constrói o prompt para avaliação do Gemini"""
         log_text = "\n".join(solution_log)
         
-        prompt = f"""Você é um especialista em lógica proposicional. Analise a resolução do problema abaixo e avalie, para cada dos passos da solução (ou seja, não considerar as premissas acima da linha '------------'), o seguinte:
+        prompt = f"""Você é um especialista em lógica proposicional. Analise a resolução do problema abaixo e avalie, para cada dos passos da solução o seguinte:
 
 1. Se a resolução está correta e se as regras de inferência foram aplicadas adequadamente.
 2. Se há algum erro ou inconsistência, explique o que está errado na solução.
@@ -183,6 +201,85 @@ Conclusão: {conclusion}
 **Resolução apresentada:**
 {log_text}
 
+**Instruções de Formatação (MUITO IMPORTANTE):**
+- Responda em texto puro, **mas mantenha rigorosamente a acentuação e a ortografia corretas do Português (ç, ã, é, í, etc.)**.
+- NÃO USE Markdown (sem asteriscos para negrito, sem hashtags, sem blocos de código).
+- NÃO USE LaTeX (sem símbolos entre `$`).
+- Para os operadores lógicos, use APENAS estes símbolos Unicode: ¬, →, ↔, ∧, ∨.
+
 Por favor, forneça uma avaliação sucinta e objetiva. Além disso, analise a qualidade da solução (por exemplo, se ela poderia ser otimizada)."""
 
         return prompt
+
+    def generate_structured_analysis(
+        self,
+        pipeline: str,
+        problem_data: Dict[str, Any],
+        solver_output: Dict[str, Any],
+        evaluation_output: Dict[str, Any],
+    ) -> dict:
+        """
+        Gera o campo analysis estruturado para ambos os pipelines.
+        Usa gemini-3.1-flash-lite-preview com schema estrito.
+        """
+        prompt = self._build_analysis_prompt(pipeline, problem_data, solver_output, evaluation_output)
+
+        try:
+            response = self.client.models.generate_content(
+                model=self.analysis_model_id,
+                contents=prompt,
+                config={
+                    "response_mime_type": "application/json",
+                    "response_json_schema": AnalysisOutput.model_json_schema(),
+                },
+            )
+
+            parsed = AnalysisOutput.model_validate_json(response.text)
+            return {
+                "success": True,
+                "analysis": parsed.model_dump(),
+                "model": self.analysis_model_id,
+            }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "model": self.analysis_model_id,
+            }
+
+    def _build_analysis_prompt(
+        self,
+        pipeline: str,
+        problem_data: Dict[str, Any],
+        solver_output: Dict[str, Any],
+        evaluation_output: Dict[str, Any],
+    ) -> str:
+        """Monta prompt para análise estruturada com saída JSON estrita."""
+        return f"""Você deve analisar uma prova de lógica proposicional e retornar APENAS JSON válido no schema fornecido.
+
+Critérios:
+- num_steps: quantidade total de passos da solução (solver_output.steps_raw).
+- num_valid_steps: quantidade de passos válidos identificados.
+- num_invalid_steps: quantidade de passos inválidos identificados.
+- reaches_target_conclusion: true se a conclusão-alvo foi alcançada.
+- is_fully_correct: true somente se todos os passos forem válidos E a conclusão for alcançada.
+- error_type: null quando não houver erro; caso contrário use EXATAMENTE um dos valores:
+  1) aplicação inválida de regra
+  2) regra inexistente
+  3) conclusão não alcançada
+  4) uso incorreto de referência a linhas anteriores
+
+Regras de interpretação:
+- Se houver log do avaliador com "Inferência inválida (regra não encontrada", use "regra inexistente".
+- Se houver log com referências inconsistentes, use "uso incorreto de referência a linhas anteriores".
+- Se houver "Inferência inválida" por aplicação da regra ou "depende de passo inválido", use "aplicação inválida de regra".
+- Se não alcançar a conclusão solicitada, use "conclusão não alcançada".
+
+Dados de entrada:
+pipeline: {pipeline}
+problem_data: {problem_data}
+solver_output: {solver_output}
+evaluation_output: {evaluation_output}
+"""
+    
