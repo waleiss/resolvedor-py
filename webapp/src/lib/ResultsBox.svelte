@@ -5,93 +5,102 @@
   function getPipelineName(pipeline: number): string {
     return pipeline === 1 ? 'W → LLM' : 'LLM → W';
   }
+
+  function getExperimentData() {
+    return result?.experiment ?? null;
+  }
+
+  function getSolverTitle(experiment: any): string {
+    return experiment?.solver?.type === 'llm' ? 'Solução do LLM' : 'Resolvedor Agente W';
+  }
+
+  function getEvaluatorTitle(experiment: any): string {
+    return experiment?.evaluator?.type === 'llm' ? 'Avaliação do LLM' : 'Avaliador Agente W';
+  }
+
+  function getSolverBoxClasses(experiment: any): string {
+    const isLLM = experiment?.solver?.type === 'llm';
+    return `p-4 rounded-lg border-2 ${isLLM ? 'bg-secondary-content/10 border-secondary' : 'bg-primary-content/10 border-primary'}`;
+  }
+
+  function getEvaluatorBoxClasses(experiment: any): string {
+    const isLLM = experiment?.evaluator?.type === 'llm';
+    return `p-4 rounded-lg border-2 ${isLLM ? 'bg-secondary-content/10 border-secondary' : 'bg-primary-content/10 border-primary'}`;
+  }
 </script>
 
 <!-- Result -->
-{#if result && lastPipeline}
+{#if result && (getExperimentData() || lastPipeline)}
+  {@const experiment = getExperimentData()}
   <div class="mt-6">
     <div class="alert alert-success mb-4">
       <span class="material-symbols-outlined">check_circle</span>
       <span>Problema processado com sucesso!</span>
-      <div class="badge badge-accent-content ml-auto">{getPipelineName(lastPipeline)}</div>
+      <div class="badge badge-accent-content ml-auto">
+        {#if experiment}
+          {experiment.metadata.pipeline === 'solver_to_llm' ? 'W → LLM' : 'LLM → W'}
+        {:else}
+          {getPipelineName(lastPipeline)}
+        {/if}
+      </div>
     </div>
 
     <!-- Resultado organizado -->
     <div class="space-y-4">
-      {#if lastPipeline === 1}
-        <!-- Pipeline 1: Solver → LLM -->
+      {#if experiment}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <!-- Solver Result -->
-          <div class="bg-primary/5 p-4 rounded-lg border-2 border-primary">
+          <div class={getSolverBoxClasses(experiment)}>
             <h4 class="text-lg font-bold mb-3 flex items-center gap-2">
               <span class="material-symbols-outlined">build</span>
-              Resolvedor Agente W
+              {getSolverTitle(experiment)}
             </h4>
             <div class="bg-base-300 p-3 rounded-lg overflow-y-auto max-h-128">
-              {#each result.solver_log as step}
-                <p class="font-mono text-sm mb-1 whitespace-pre-wrap">{step}</p>
-              {/each}
-            </div>
-          </div>
+              <p class="text-sm mb-2"><strong>Modelo:</strong> {experiment.solver.model}</p>
 
-          <!-- Gemini Evaluation -->
-          <div class="bg-secondary/5 p-4 rounded-lg border-2 border-secondary">
-            <h4 class="text-lg font-bold mb-3 flex items-center gap-2">
-              <span class="material-symbols-outlined">smart_toy</span>
-              Avaliação do LLM
-            </h4>
-            <div class="bg-base-300 p-3 rounded-lg overflow-y-auto max-h-128">
-              {#if result.gemini_evaluation.success}
-                <p class="text-sm mb-2"><strong>Modelo:</strong> {result.gemini_evaluation.model}</p>
-                <div class="whitespace-pre-wrap text-sm">{result.gemini_evaluation.evaluation}</div>
-              {:else}
-                <div class="badge badge-error mb-2">Erro</div>
-                <p class="text-sm text-error">{result.gemini_evaluation.error}</p>
-              {/if}
-            </div>
-          </div>
-        </div>
-      {:else}
-        <!-- Pipeline 2: LLM → Evaluator -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <!-- Gemini Solution -->
-          <div class="bg-secondary/5 p-4 rounded-lg border-2 border-secondary">
-            <h4 class="text-lg font-bold mb-3 flex items-center gap-2">
-              <span class="material-symbols-outlined">smart_toy</span>
-              Solução do LLM
-            </h4>
-            <div class="bg-base-300 p-3 rounded-lg overflow-y-auto max-h-128">
-              {#if result.gemini_solution.success}
-                <p class="text-sm mb-2"><strong>Modelo:</strong> {result.gemini_solution.model}</p>
+              {#if experiment.solver_output.raw_text}
                 <div class="mb-3">
-                  <p class="font-semibold mb-1">Solução:</p>
-                  <div class="whitespace-pre-wrap text-sm bg-base-200 p-2 rounded">{result.gemini_solution.solution}</div>
+                  <p class="font-semibold mb-1">Saída textual:</p>
+                  <div class="whitespace-pre-wrap text-sm bg-base-200 p-2 rounded">{experiment.solver_output.raw_text}</div>
                 </div>
+              {/if}
+
+              {#if experiment.solver_output.steps_raw?.length > 0}
                 <div>
-                  <p class="font-semibold mb-1">Inferências extraídas:</p>
+                  <p class="font-semibold mb-1">Passos:</p>
                   <ul class="list-disc list-inside ml-2">
-                    {#each result.gemini_solution.inferences as inference}
-                      <li class="font-mono text-sm">{inference}</li>
+                    {#each experiment.solver_output.steps_raw as step}
+                      <li class="font-mono text-sm">{step}</li>
                     {/each}
                   </ul>
                 </div>
-              {:else}
-                <div class="badge badge-error mb-2">Erro</div>
-                <p class="text-sm text-error">{result.gemini_solution.error}</p>
               {/if}
             </div>
           </div>
 
-          <!-- Evaluator Result -->
-          <div class="bg-accent/5 p-4 rounded-lg border-2 border-primary">
+          <div class={getEvaluatorBoxClasses(experiment)}>
             <h4 class="text-lg font-bold mb-3 flex items-center gap-2">
               <span class="material-symbols-outlined">fact_check</span>
-              Avaliador Agente W
+              {getEvaluatorTitle(experiment)}
             </h4>
             <div class="bg-base-300 p-3 rounded-lg overflow-y-auto max-h-128">
-              {#each result.evaluator_log as step}
-                <p class="font-mono text-sm mb-1 whitespace-pre-wrap">{step}</p>
-              {/each}
+              <p class="text-sm mb-2"><strong>Modelo:</strong> {experiment.evaluator.model}</p>
+
+              {#if !experiment.evaluation_output.success}
+                <div class="badge badge-error mb-2">Erro</div>
+                {#if experiment.evaluation_output.error}
+                  <p class="text-sm text-error">{experiment.evaluation_output.error}</p>
+                {/if}
+              {/if}
+
+              {#if experiment.evaluation_output.raw_text}
+                <div class="whitespace-pre-wrap text-sm mb-3">{experiment.evaluation_output.raw_text}</div>
+              {/if}
+
+              {#if experiment.evaluation_output.log?.length > 0}
+                {#each experiment.evaluation_output.log as step}
+                  <p class="font-mono text-sm mb-1 whitespace-pre-wrap">{step}</p>
+                {/each}
+              {/if}
             </div>
           </div>
         </div>

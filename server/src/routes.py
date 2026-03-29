@@ -1,4 +1,6 @@
 from flask import request, jsonify
+from datetime import datetime
+from typing import List, Dict, Any
 from src.parser import parse_expression
 from src.controller import Controller
 from src.services.gemini_service import GeminiService
@@ -9,6 +11,32 @@ from run_evaluator import RULES_DICT
 # Inicializa os serviços
 gemini_service = GeminiService()
 storage_service = StorageService()
+
+
+def _extract_solver_steps(log: List[str]) -> List[str]:
+    """Extrai apenas as linhas de inferência do log do solver."""
+    separator_index = -1
+    for i, line in enumerate(log):
+        if isinstance(line, str) and line.startswith('---'):
+            separator_index = i
+            break
+
+    if separator_index >= 0:
+        return [line for line in log[separator_index + 1:] if isinstance(line, str) and line.strip()]
+
+    return [line for line in log if isinstance(line, str) and line.strip()]
+
+
+def _build_problem_payload(problem: str, sentences: List[str], conclusion: str, data: Dict[str, Any]) -> Dict[str, Any]:
+    """Monta o bloco problem no schema padrão."""
+    timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    return {
+        "problem_id": data.get("problem_id") or f"problem_{timestamp_str}",
+        "description": problem,
+        "sentences": sentences,
+        "conclusion": conclusion,
+        "difficulty": data.get("difficulty", "medium")
+    }
 
 
 def register_routes(app):
@@ -123,28 +151,51 @@ def register_routes(app):
                     "gemini_error": gemini_evaluation.get("error", "Erro desconhecido")
                 }), 500
 
-            # Passo 3: Salva os resultados (apenas se Gemini teve sucesso)
-            save_result = storage_service.save_solver_to_llm_result(
-                problem=problem,
-                sentences=sentences,
-                conclusion=conclusion,
-                solver_log=log,
-                gemini_evaluation=gemini_evaluation
-            )
+            # Passo 3: Monta documento no schema padrão e salva
+            timestamp = datetime.now()
+            timestamp_str = timestamp.strftime("%Y%m%d_%H%M%S")
+            doc_id = f"solver_to_llm_{timestamp_str}"
+
+            experiment_document = {
+                "_id": doc_id,
+                "metadata": {
+                    "timestamp": timestamp.isoformat(),
+                    "pipeline": "solver_to_llm"
+                },
+                "problem": _build_problem_payload(problem, sentences, conclusion, data),
+                "solver": {
+                    "type": "agent_w",
+                    "model": "solver"
+                },
+                "evaluator": {
+                    "type": "llm",
+                    "model": gemini_evaluation.get("model", "gemini-3-flash-preview")
+                },
+                "solver_output": {
+                    "success": True,
+                    "raw_text": None,
+                    "steps_raw": _extract_solver_steps(log)
+                },
+                "evaluation_output": {
+                    "success": gemini_evaluation.get("success", False),
+                    "raw_text": gemini_evaluation.get("evaluation"),
+                    "log": None
+                }
+            }
+
+            save_result = storage_service.save_experiment_result(experiment_document)
 
             if not save_result["success"]:
                 return jsonify({
                     "warning": "Experimento executado mas não foi possível salvar",
-                    "solver_log": log,
-                    "gemini_evaluation": gemini_evaluation,
+                    "experiment": experiment_document,
                     "save_error": save_result.get("error")
                 }), 207  # Multi-Status
 
             # Retorna resultado completo
             return jsonify({
                 "success": True,
-                "solver_log": log,
-                "gemini_evaluation": gemini_evaluation,
+                "experiment": experiment_document,
                 "saved_to": save_result["filename"]
             }), 200
 
@@ -198,28 +249,51 @@ def register_routes(app):
             controller = Controller(rules=RULES_DICT, memory=memory, conclusion=conclusion_expr, log=log)
             controller.run_evaluator(inferences=inferences)
 
-            # Passo 3: Salva os resultados
-            save_result = storage_service.save_llm_to_evaluator_result(
-                problem=problem,
-                sentences=sentences,
-                conclusion=conclusion,
-                gemini_solution=gemini_solution,
-                evaluator_log=log
-            )
+            # Passo 3: Monta documento no schema padrão e salva
+            timestamp = datetime.now()
+            timestamp_str = timestamp.strftime("%Y%m%d_%H%M%S")
+            doc_id = f"llm_to_eval_{timestamp_str}"
+
+            experiment_document = {
+                "_id": doc_id,
+                "metadata": {
+                    "timestamp": timestamp.isoformat(),
+                    "pipeline": "llm_to_evaluator"
+                },
+                "problem": _build_problem_payload(problem, sentences, conclusion, data),
+                "solver": {
+                    "type": "llm",
+                    "model": gemini_solution.get("model", "gemini-3-flash-preview")
+                },
+                "evaluator": {
+                    "type": "agent_w",
+                    "model": "evaluator"
+                },
+                "solver_output": {
+                    "success": gemini_solution.get("success", False),
+                    "raw_text": gemini_solution.get("solution"),
+                    "steps_raw": gemini_solution.get("inferences", [])
+                },
+                "evaluation_output": {
+                    "success": True,
+                    "raw_text": None,
+                    "log": log
+                }
+            }
+
+            save_result = storage_service.save_experiment_result(experiment_document)
 
             if not save_result["success"]:
                 return jsonify({
                     "warning": "Experimento executado mas não foi possível salvar",
-                    "gemini_solution": gemini_solution,
-                    "evaluator_log": log,
+                    "experiment": experiment_document,
                     "save_error": save_result.get("error")
                 }), 207  # Multi-Status
 
             # Retorna resultado completo
             return jsonify({
                 "success": True,
-                "gemini_solution": gemini_solution,
-                "evaluator_log": log,
+                "experiment": experiment_document,
                 "saved_to": save_result["filename"]
             }), 200
 

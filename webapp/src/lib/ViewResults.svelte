@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getExperiments, getExperiment } from './api';
-  import type { ExperimentListItem, Experiment, SolverToLLMExperiment, LLMToEvaluatorExperiment } from '../types';
+  import type { ExperimentListItem, Experiment } from '../types';
 
   let experiments: ExperimentListItem[] = [];
   let selectedExperiment: Experiment | null = null;
@@ -56,12 +56,22 @@
     return pipeline;
   }
 
-  function isSolverToLLM(experiment: Experiment): experiment is SolverToLLMExperiment {
-    return experiment.metadata.pipeline === 'solver_to_llm';
+  function getSolverTitle(experiment: Experiment): string {
+    return experiment.solver.type === 'llm' ? 'Solução do LLM' : 'Resolvedor Agente W';
   }
 
-  function isLLMToEvaluator(experiment: Experiment): experiment is LLMToEvaluatorExperiment {
-    return experiment.metadata.pipeline === 'llm_to_evaluator';
+  function getEvaluatorTitle(experiment: Experiment): string {
+    return experiment.evaluator.type === 'llm' ? 'Avaliação do LLM' : 'Avaliador Agente W';
+  }
+
+  function getSolverBoxClasses(experiment: Experiment): string {
+    const isLLM = experiment.solver.type === 'llm';
+    return `p-4 rounded-lg border-2 ${isLLM ? 'bg-secondary-content/10 border-secondary' : 'bg-primary-content/10 border-primary'}`;
+  }
+
+  function getEvaluatorBoxClasses(experiment: Experiment): string {
+    const isLLM = experiment.evaluator.type === 'llm';
+    return `p-4 rounded-lg border-2 ${isLLM ? 'bg-secondary-content/10 border-secondary' : 'bg-primary-content/10 border-primary'}`;
   }
 </script>
 
@@ -156,80 +166,67 @@
 
       <!-- Duas Caixas Lado a Lado -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        
-        <!-- Lado Esquerdo -->
-        {#if isSolverToLLM(selectedExperiment)}
-          <!-- Pipeline 1: Solver à esquerda -->
-          <div class="bg-primary/3 p-4 rounded-lg border-2 border-primary">
-            <h4 class="text-xl font-bold mb-3 flex items-center gap-2">
-              <span class="material-symbols-outlined">build</span>
-              Resolvedor Agente W
-            </h4>
-            <div class="overflow-y-auto max-h-96">
-              {#each selectedExperiment.solver_result.log as step}
-                <p class="font-mono text-sm mb-1 whitespace-pre-wrap">{step}</p>
-              {/each}
-            </div>
-          </div>
+        <div class={getSolverBoxClasses(selectedExperiment)}>
+          <h4 class="text-xl font-bold mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined">build</span>
+            {getSolverTitle(selectedExperiment)}
+          </h4>
+          <div class="overflow-y-auto max-h-96">
+            <p class="text-sm mb-2"><strong>Modelo:</strong> {selectedExperiment.solver.model}</p>
 
-          <!-- LLM à direita -->
-          <div class="bg-secondary/3 p-4 rounded-lg border-2 border-secondary">
-            <h4 class="text-xl font-bold mb-3 flex items-center gap-2">
-              <span class="material-symbols-outlined">smart_toy</span>
-              Avaliação do LLM
-            </h4>
-            <div class="overflow-y-auto max-h-96">
-              {#if selectedExperiment.gemini_evaluation.success}
-                <p class="text-sm mb-2"><strong>Modelo:</strong> {selectedExperiment.gemini_evaluation.model}</p>
-                <div class="whitespace-pre-wrap text-sm">{selectedExperiment.gemini_evaluation.evaluation}</div>
-              {:else}
-                <div class="badge badge-error mb-2">Erro</div>
-                <p class="text-sm text-error">{selectedExperiment.gemini_evaluation.error}</p>
-              {/if}
-            </div>
-          </div>
-        {:else if isLLMToEvaluator(selectedExperiment)}
-          <!-- Pipeline 2: LLM à esquerda -->
-          <div class="bg-secondary/3 p-4 rounded-lg border-2 border-secondary">
-            <h4 class="text-xl font-bold mb-3 flex items-center gap-2">
-              <span class="material-symbols-outlined">smart_toy</span>
-              Solução do LLM
-            </h4>
-            <div class="overflow-y-auto max-h-96">
-              {#if selectedExperiment.gemini_solution.success}
-                <p class="text-sm mb-2"><strong>Modelo:</strong> {selectedExperiment.gemini_solution.model}</p>
-                <div class="mb-3">
-                  <p class="font-semibold mb-1">Solução:</p>
-                  <div class="whitespace-pre-wrap text-sm bg-base-200 p-2 rounded">{selectedExperiment.gemini_solution.solution}</div>
-                </div>
-                <div>
-                  <p class="font-semibold mb-1">Inferências extraídas:</p>
-                  <ul class="list-disc list-inside ml-2">
-                    {#each selectedExperiment.gemini_solution.inferences as inference}
-                      <li class="font-mono text-sm">{inference}</li>
-                    {/each}
-                  </ul>
-                </div>
-              {:else}
-                <div class="badge badge-error mb-2">Erro</div>
-                <p class="text-sm text-error">{selectedExperiment.gemini_solution.error}</p>
-              {/if}
-            </div>
-          </div>
+            {#if !selectedExperiment.solver_output.success}
+              <div class="badge badge-error mb-2">Erro</div>
+            {/if}
 
-          <!-- Evaluator à direita -->
-          <div class="bg-accent/3 p-4 rounded-lg border-2 border-primary">
-            <h4 class="text-xl font-bold mb-3 flex items-center gap-2">
-              <span class="material-symbols-outlined">fact_check</span>
-              Avaliador Agente W
-            </h4>
-            <div class="overflow-y-auto max-h-96">
-              {#each selectedExperiment.evaluator_result.log as step}
-                <p class="font-mono text-sm mb-1 whitespace-pre-wrap">{step}</p>
-              {/each}
-            </div>
+            {#if selectedExperiment.solver_output.raw_text}
+              <div class="mb-3">
+                <p class="font-semibold mb-1">Saída textual:</p>
+                <div class="whitespace-pre-wrap text-sm bg-base-200 p-2 rounded">{selectedExperiment.solver_output.raw_text}</div>
+              </div>
+            {/if}
+
+            {#if selectedExperiment.solver_output.steps_raw.length > 0}
+              <div>
+                <p class="font-semibold mb-1">Passos:</p>
+                <ul class="list-disc list-inside ml-2">
+                  {#each selectedExperiment.solver_output.steps_raw as step}
+                    <li class="font-mono text-sm">{step}</li>
+                  {/each}
+                </ul>
+              </div>
+            {/if}
           </div>
-        {/if}
+        </div>
+
+        <div class={getEvaluatorBoxClasses(selectedExperiment)}>
+          <h4 class="text-xl font-bold mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined">fact_check</span>
+            {getEvaluatorTitle(selectedExperiment)}
+          </h4>
+          <div class="overflow-y-auto max-h-96">
+            <p class="text-sm mb-2"><strong>Modelo:</strong> {selectedExperiment.evaluator.model}</p>
+
+            {#if !selectedExperiment.evaluation_output.success}
+              <div class="badge badge-error mb-2">Erro</div>
+              {#if selectedExperiment.evaluation_output.error}
+                <p class="text-sm text-error">{selectedExperiment.evaluation_output.error}</p>
+              {/if}
+            {/if}
+
+            {#if selectedExperiment.evaluation_output.raw_text}
+              <div class="whitespace-pre-wrap text-sm mb-3">{selectedExperiment.evaluation_output.raw_text}</div>
+            {/if}
+
+            {#if selectedExperiment.evaluation_output.log && selectedExperiment.evaluation_output.log.length > 0}
+              <div>
+                <p class="font-semibold mb-1">Log do avaliador:</p>
+                {#each selectedExperiment.evaluation_output.log as step}
+                  <p class="font-mono text-sm mb-1 whitespace-pre-wrap">{step}</p>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        </div>
       </div>
 
       <div class="modal-action">

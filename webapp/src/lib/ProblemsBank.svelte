@@ -47,7 +47,9 @@
     try {
       const argument = {
         sentences: selectedProblem.sentences,
-        conclusion: selectedProblem.conclusion
+        conclusion: selectedProblem.conclusion,
+        problem_id: selectedProblem.id,
+        difficulty: selectedProblem.difficulty
       };
       
       const result = pipeline === 1 

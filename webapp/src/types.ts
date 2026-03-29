@@ -1,54 +1,52 @@
 export interface Argument {
   sentences: string[];
   conclusion: string;
+  problem_id?: string;
+  difficulty?: string;
 }
+
+export type PipelineType = 'solver_to_llm' | 'llm_to_evaluator';
 
 export interface ExperimentMetadata {
   timestamp: string;
   filename: string;
-  pipeline: string;
+  pipeline: PipelineType;
 }
 
 export interface ProblemData {
+  problem_id: string;
   description: string;
   sentences: string[];
   conclusion: string;
+  difficulty: string;
 }
 
-export interface GeminiEvaluation {
-  success: boolean;
-  evaluation: string;
+export interface ExperimentAgent {
+  type: string;
   model: string;
+}
+
+export interface SolverOutput {
+  success: boolean;
+  raw_text: string | null;
+  steps_raw: string[];
+}
+
+export interface EvaluationOutput {
+  success: boolean;
+  raw_text: string | null;
+  log: string[] | null;
   error?: string;
 }
 
-export interface GeminiSolution {
-  success: boolean;
-  solution: string;
-  inferences: string[];
-  model: string;
-  error?: string;
-}
-
-export interface SolverToLLMExperiment {
+export interface Experiment {
   metadata: ExperimentMetadata;
   problem: ProblemData;
-  solver_result: {
-    log: string[];
-  };
-  gemini_evaluation: GeminiEvaluation;
+  solver: ExperimentAgent;
+  evaluator: ExperimentAgent;
+  solver_output: SolverOutput;
+  evaluation_output: EvaluationOutput;
 }
-
-export interface LLMToEvaluatorExperiment {
-  metadata: ExperimentMetadata;
-  problem: ProblemData;
-  gemini_solution: GeminiSolution;
-  evaluator_result: {
-    log: string[];
-  };
-}
-
-export type Experiment = SolverToLLMExperiment | LLMToEvaluatorExperiment;
 
 export interface ExperimentListItem {
   filename: string;

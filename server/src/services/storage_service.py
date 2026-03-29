@@ -38,125 +38,33 @@ class StorageService:
         except Exception as e:
             raise Exception(f"Erro ao inicializar StorageService: {str(e)}")
     
-    def save_solver_to_llm_result(
-        self,
-        problem: str,
-        sentences: List[str],
-        conclusion: str,
-        solver_log: List[str],
-        gemini_evaluation: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def save_experiment_result(self, document: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Salva o resultado de um experimento no MongoDB.
-        
+        Salva um experimento já normalizado no schema padrão.
+
         Args:
-            problem: Descrição do problema
-            sentences: Lista de sentenças (premissas)
-            conclusion: Conclusão do problema
-            solver_log: Log de resolução do solver
-            gemini_evaluation: Avaliação do Gemini
-            
+            document: Documento completo do experimento
+
         Returns:
             Dict com informações sobre o documento salvo
         """
-        # Gera timestamp e identificador
-        timestamp = datetime.now()
-        timestamp_str = timestamp.strftime("%Y%m%d_%H%M%S")
-        doc_id = f"solver_to_llm_{timestamp_str}"
-        
-        # Monta o documento
-        document = {
-            "_id": doc_id,
-            "metadata": {
-                "timestamp": timestamp.isoformat(),
-                "pipeline": "solver_to_llm"
-            },
-            "problem": {
-                "description": problem,
-                "sentences": sentences,
-                "conclusion": conclusion
-            },
-            "solver_result": {
-                "log": solver_log
-            },
-            "gemini_evaluation": gemini_evaluation
-        }
-        
-        # Salva no MongoDB
         try:
-            self.experiments_collection.insert_one(document)
-            
+            doc_data = dict(document)
+
+            if "_id" not in doc_data or not doc_data["_id"]:
+                timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+                pipeline = doc_data.get("metadata", {}).get("pipeline", "experiment")
+                prefix = "solver_to_llm" if pipeline == "solver_to_llm" else "llm_to_eval" if pipeline == "llm_to_evaluator" else "experiment"
+                doc_data["_id"] = f"{prefix}_{timestamp_str}"
+
+            self.experiments_collection.insert_one(doc_data)
+
             return {
                 "success": True,
-                "document_id": doc_id,
-                "filename": doc_id  # Mantém compatibilidade com código existente
+                "document_id": doc_data["_id"],
+                "filename": doc_data["_id"]
             }
-            
-        except PyMongoError as e:
-            return {
-                "success": False,
-                "error": f"Erro ao salvar no MongoDB: {str(e)}"
-            }
-        except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
-    
-    def save_llm_to_evaluator_result(
-        self,
-        problem: str,
-        sentences: List[str],
-        conclusion: str,
-        gemini_solution: Dict[str, Any],
-        evaluator_log: List[str]
-    ) -> Dict[str, Any]:
-        """
-        Salva o resultado do pipeline: Gemini resolve -> Avaliador avalia no MongoDB.
-        
-        Args:
-            problem: Descrição do problema
-            sentences: Lista de sentenças (premissas)
-            conclusion: Conclusão do problema
-            gemini_solution: Solução gerada pelo Gemini
-            evaluator_log: Log de avaliação do evaluator
-            
-        Returns:
-            Dict com informações sobre o documento salvo
-        """
-        # Gera timestamp e identificador
-        timestamp = datetime.now()
-        timestamp_str = timestamp.strftime("%Y%m%d_%H%M%S")
-        doc_id = f"llm_to_eval_{timestamp_str}"
-        
-        # Monta o documento
-        document = {
-            "_id": doc_id,
-            "metadata": {
-                "timestamp": timestamp.isoformat(),
-                "pipeline": "llm_to_evaluator"
-            },
-            "problem": {
-                "description": problem,
-                "sentences": sentences,
-                "conclusion": conclusion
-            },
-            "gemini_solution": gemini_solution,
-            "evaluator_result": {
-                "log": evaluator_log
-            }
-        }
-        
-        # Salva no MongoDB
-        try:
-            self.experiments_collection.insert_one(document)
-            
-            return {
-                "success": True,
-                "document_id": doc_id,
-                "filename": doc_id  # Mantém compatibilidade com código existente
-            }
-            
+
         except PyMongoError as e:
             return {
                 "success": False,
