@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from google import genai
+from google.genai import types
 from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field
 
@@ -71,8 +72,10 @@ class GeminiService:
                 contents=prompt,
                 config={
                     "response_mime_type": "application/json",
-                    "response_json_schema": LogicalSolution.model_json_schema()
-                }
+                    "response_json_schema": LogicalSolution.model_json_schema(),
+                    "thinking_config": types.ThinkingConfig(thinking_level="high"),
+                    "temperature": 1.0,
+                    }
             )
             
             # Valida o JSON retornado pelo modelo contra o schema Pydantic
@@ -100,7 +103,7 @@ class GeminiService:
         """Constrói o prompt para o Gemini resolver o problema com saída JSON estruturada"""
         sentences_formatted = "\n".join([f"{i+1}. {s}" for i, s in enumerate(sentences)])
         
-        prompt = f"""Resolva o problema de lógica proposicional abaixo com passos formais válidos.
+        prompt = f"""Você é um especialista em Lógica Proposicional. Resolva o problema de lógica proposicional abaixo fornecendo uma construção de prova passo a passo com passos formais válidos usando dedução natural.
 
 Retorne APENAS JSON no formato:
 {{
@@ -117,14 +120,17 @@ Retorne APENAS JSON no formato:
 Regras permitidas:
 Silogismo Disjuntivo, Modus Tollens, Introdução da Bi-implicação, Dissociação de Bi-implicação, Modus Ponens, Silogismo Hipotético, Transposição, Associatividade, Comutatividade, Distributividade, De Morgan, Dilema Construtivo, Exportação, Implicação Material, Conjunção, Simplificação, Dupla Negação e Adição.
 
-Restrições:
+Restrições obrigatórias:
+- Use somente as regras permitidas e escreva o nome da regra EXATAMENTE como listado.
+- Cada passo deve ser derivado apenas das premissas ou de linhas anteriores válidas.
+- Não pule etapas necessárias.
+- Não gere passos redundantes que não contribuam para alcançar a conclusão.
+- step_n deve ser estritamente crescente, sem repetições, iniciando em {len(sentences)+1}.
+- refs deve conter somente números de linhas anteriores efetivamente usados.
+- A prova deve terminar quando a conclusão {conclusion} for derivada.
+- Use apenas símbolos Unicode: ¬, →, ↔, ∧, ∨.
+- Não use LaTeX, Markdown ou texto fora do JSON.
 - Simplifique diretamente novas expressões que contenham dupla negação (ex: ao inferir ¬¬P ∨ Q, elimine a negação e escreva P ∨ Q em vez de ¬¬P ∨ Q.
-- Sem texto fora do JSON.
-- Sem LaTeX e sem blocos de código.
-- Use apenas símbolos lógicos Unicode: ¬, →, ↔, ∧, ∨.
-- step_n começa em {len(sentences) + 1}.
-- refs deve conter as linhas usadas em cada inferência.
-- A lista deve ir até derivar a conclusão {conclusion}.
 
 Problema: {problem}
 Premissas:
@@ -170,7 +176,11 @@ Conclusão: {conclusion}
             # Chama a API do Gemini
             response = self.client.models.generate_content(
                 model=self.model_id,
-                contents=prompt
+                contents=prompt,
+                config={
+                    "thinking_config": types.ThinkingConfig(thinking_level="high"),
+                    "temperature": 1.0,
+                    }
             )
             
             return {
@@ -190,7 +200,7 @@ Conclusão: {conclusion}
         """Constrói o prompt para avaliação do Gemini"""
         log_text = "\n".join(solution_log)
         
-        prompt = f"""Você é um especialista em lógica proposicional. Analise a resolução do problema abaixo e avalie, para cada dos passos da solução o seguinte:
+        prompt = f"""Você é um especialista em lógica proposicional. Analise a resolução do problema abaixo e avalie, para cada um dos passos da solução o seguinte:
 
 1. Se a resolução está correta e se as regras de inferência foram aplicadas adequadamente.
 2. Se há algum erro ou inconsistência, explique o que está errado na solução.
@@ -207,6 +217,7 @@ Conclusão: {conclusion}
 - NÃO USE LaTeX (sem símbolos entre `$`).
 - Para os operadores lógicos, use APENAS estes símbolos Unicode: ¬, →, ↔, ∧, ∨.
 
+Regras de inferência e equivalência permitidas: Silogismo Disjuntivo, Modus Tollens, Introdução da Bi-implicação, Dissociação de Bi-implicação, Modus Ponens, Silogismo Hipotético, Transposição, Associatividade, Comutatividade, Distributividade, De Morgan, Dilema Construtivo, Exportação, Implicação Material, Conjunção, Simplificação, Dupla Negação e Adição.
 Por favor, forneça uma avaliação sucinta e objetiva. Além disso, analise a qualidade da solução (por exemplo, se ela poderia ser otimizada)."""
 
         return prompt
@@ -231,6 +242,8 @@ Por favor, forneça uma avaliação sucinta e objetiva. Além disso, analise a q
                 config={
                     "response_mime_type": "application/json",
                     "response_json_schema": AnalysisOutput.model_json_schema(),
+                    "thinking_config": types.ThinkingConfig(thinking_level="high"),
+                    "temperature": 1.0,
                 },
             )
 
