@@ -177,8 +177,7 @@ def register_routes(app):
                 },
                 "evaluation_output": {
                     "success": gemini_evaluation.get("success", False),
-                    "raw_text": gemini_evaluation.get("evaluation"),
-                    "log": None
+                    "log": gemini_evaluation.get("log")
                 }
             }
 

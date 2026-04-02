@@ -21,6 +21,22 @@ class LogicalSolution(BaseModel):
     passos: List[LogicalStep]
 
 
+class EvaluationStepReview(BaseModel):
+    """Revisão estruturada de um passo da solução"""
+    step_n: int = Field(description="Número do passo avaliado")
+    status: Literal["válido", "inválido"] = Field(description="Status do passo")
+    rule_name: str = Field(description="Nome da regra citada")
+    refs: list[int] = Field(description="Referências usadas no passo")
+    explanation: str = Field(description="Explicação curta do julgamento")
+
+
+class StructuredEvaluation(BaseModel):
+    """Saída estruturada da avaliação do Gemini"""
+    summary: str
+    step_reviews: List[EvaluationStepReview]
+    optimization_notes: List[str] = Field(default_factory=list)
+
+
 class AnalysisOutput(BaseModel):
     """Análise estruturada da qualidade/correção da solução"""
     num_steps: int = Field(ge=0)
@@ -169,24 +185,26 @@ Conclusão: {conclusion}
         Returns:
             dict com a avaliação do Gemini
         """
-        # Monta o prompt para o Gemini
         prompt = self._build_evaluation_prompt(problem, solution_log)
         
         try:
-            # Chama a API do Gemini
             response = self.client.models.generate_content(
                 model=self.model_id,
                 contents=prompt,
                 config={
+                    "response_mime_type": "application/json",
+                    "response_json_schema": StructuredEvaluation.model_json_schema(),
                     "thinking_config": types.ThinkingConfig(thinking_level="high"),
                     "temperature": 1.0,
                     }
             )
             
+            parsed = StructuredEvaluation.model_validate_json(response.text)
             return {
                 "success": True,
-                "evaluation": response.text,
-                "model": self.model_id
+                "evaluation": parsed.model_dump(),
+                "log": self._structured_evaluation_to_log(parsed),
+                "model": self.model_id,
             }
             
         except Exception as e:
@@ -200,27 +218,62 @@ Conclusão: {conclusion}
         """Constrói o prompt para avaliação do Gemini"""
         log_text = "\n".join(solution_log)
         
-        prompt = f"""Você é um especialista em lógica proposicional. Analise a resolução do problema abaixo e avalie, para cada um dos passos da solução o seguinte:
+        prompt = f"""Você é um especialista em lógica proposicional.
 
-1. Se a resolução está correta e se as regras de inferência foram aplicadas adequadamente.
-2. Se há algum erro ou inconsistência, explique o que está errado na solução.
+    Analise a resolução do problema abaixo passo a passo e retorne APENAS JSON com:
+    - summary
+    - step_reviews
+    - optimization_notes
 
-**Problema:**
-{problem}
+    Critérios de avaliação:
+    - identifique se cada passo é válido ou inválido e se as regras de inferência e equivalência foram aplicadas corretamente;
+    - registre a regra usada e as referências;
+    - se houver erro, explique o erro na explicação do julgamento;
+    - aponte se a conclusão foi alcançada corretamente;
+    - indique se a solução está totalmente correta;
+    - nas notas de otimização, descreva como a solução poderia ser otimizada;
+    - a explicação deve ser adaptada para alunos de graduação em cursos introdutórios de lógica, ou seja, você deve definir quaisquer termos técnicos e explicar cada etapa claramente;
+    - regras de inferência e equivalência permitidas: Silogismo Disjuntivo, Modus Tollens, Introdução da Bi-implicação, Dissociação de Bi-implicação, Modus Ponens, Silogismo Hipotético, Transposição, Associatividade, Comutatividade, Distributividade, De Morgan, Dilema Construtivo, Exportação, Implicação Material, Conjunção, Simplificação, Dupla Negação e Adição.
 
-**Resolução apresentada:**
-{log_text}
+    Problema:
+    {problem}
 
-**Instruções de Formatação (MUITO IMPORTANTE):**
-- Responda em texto puro, **mas mantenha rigorosamente a acentuação e a ortografia corretas do Português (ç, ã, é, í, etc.)**.
-- NÃO USE Markdown (sem asteriscos para negrito, sem hashtags, sem blocos de código).
-- NÃO USE LaTeX (sem símbolos entre `$`).
-- Para os operadores lógicos, use APENAS estes símbolos Unicode: ¬, →, ↔, ∧, ∨.
-
-Regras de inferência e equivalência permitidas: Silogismo Disjuntivo, Modus Tollens, Introdução da Bi-implicação, Dissociação de Bi-implicação, Modus Ponens, Silogismo Hipotético, Transposição, Associatividade, Comutatividade, Distributividade, De Morgan, Dilema Construtivo, Exportação, Implicação Material, Conjunção, Simplificação, Dupla Negação e Adição.
-Por favor, forneça uma avaliação sucinta e objetiva. Além disso, analise a qualidade da solução (por exemplo, se ela poderia ser otimizada)."""
+    Resolução apresentada:
+    {log_text}
+    """
 
         return prompt
+
+    def _structured_evaluation_to_log(self, evaluation: StructuredEvaluation) -> List[str]:
+        log = [
+            "===== RESUMO =====",
+            evaluation.summary,
+            "",
+            "===== AVALIAÇÃO PASSO A PASSO =====",
+        ]
+
+        for review in evaluation.step_reviews:
+            refs_text = ", ".join(str(ref) for ref in review.refs) if review.refs else "nenhuma"
+            
+            status_icon = "✓" if review.status == "válido" else "✗"
+            status_text = "VÁLIDO" if review.status == "válido" else "INVÁLIDO"
+
+            log.extend([
+                f"{status_icon} Passo {review.step_n} ({status_text})",
+                f"  Regra: {review.rule_name}",
+                f"  Referências: {refs_text}",
+                f"  Justificativa: {review.explanation}",
+                ""
+            ])
+
+        if evaluation.optimization_notes:
+            log.extend([
+                "===== OTIMIZAÇÕES ====="
+            ])
+            for note in evaluation.optimization_notes:
+                log.append(f"- {note}")
+
+        return log
 
     def generate_structured_analysis(
         self,

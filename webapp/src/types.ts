@@ -33,7 +33,6 @@ export interface SolverOutput {
 
 export interface EvaluationOutput {
   success: boolean;
-  raw_text: string | null;
   log: string[] | null;
   error?: string;
 }

@@ -206,15 +206,11 @@
               {/if}
             {/if}
 
-            {#if selectedExperiment.evaluation_output.raw_text}
-              <div class="whitespace-pre-wrap text-sm mb-3">{selectedExperiment.evaluation_output.raw_text}</div>
-            {/if}
-
             {#if selectedExperiment.evaluation_output.log && selectedExperiment.evaluation_output.log.length > 0}
               <div>
-                <p class="font-semibold mb-1">Log do avaliador:</p>
-                {#each selectedExperiment.evaluation_output.log as step}
-                  <p class="font-mono text-sm mb-1 whitespace-pre-wrap">{step}</p>
+                <p class="font-semibold mb-1">Avaliação:</p>
+                {#each selectedExperiment.evaluation_output.log as line}
+                  <p class="font-mono text-sm mb-1 whitespace-pre-wrap">{line}</p>
                 {/each}
               </div>
             {/if}
