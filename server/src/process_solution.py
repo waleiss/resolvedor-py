@@ -1,5 +1,5 @@
 import re
-from .rules import *  # Importa todas as regras
+from .rules import *
 from .expression import Expression
 from .parser import parse_expression
 
@@ -13,13 +13,17 @@ def extract_references(step):
         match = re.findall(r'\b\d+\b', step)
         return [int(num) for num in match]  # Ignorar o número do próprio passo
 
-def process_inferences(inferences, rules_dict, memory, log):
+def process_inferences(inferences, rules_dict, memory, log, conclusion):
     """
     Processa as inferências recebidas, extrai a regra usada e as premissas referenciadas.
     Rastreia passos inválidos e invalida todos os passos que dependem deles.
+    Avalia se a conclusão final foi alcançada com sucesso.
     """
     # Inicializar valid_steps com os índices das premissas já na memória
     valid_steps = set(range(1, len(memory) + 1))  # Premissas são passos válidos por padrão
+    
+    # Flag para saber se a conclusão foi gerada em algum passo válido
+    conclusion_reached = False
     
     for inference in inferences:
         # Divide usando dois espaços como delimitador
@@ -54,9 +58,19 @@ def process_inferences(inferences, rules_dict, memory, log):
                 if rule.verify(referenced_expressions, new_expr):
                     valid_steps.add(step_number)  # Marcar como válido
                     log.append(f"Inferência válida: {inference}")
+                    
+                    # Checa se o passo atual atingiu a conclusão do problema
+                    if new_expr == conclusion:
+                        conclusion_reached = True
                 else:
                     log.append(f"Inferência inválida: {inference}")
             else:
                 log.append(f"Inferência inválida (regra não encontrada: {rule_name}): {inference}")
         else:
             print(f"Formato inválido de inferência: {inference}")
+
+    # Adiciona o veredito final ao log
+    if conclusion_reached:
+        log.append("Conclusão alcançada com sucesso.")
+    else:
+        log.append("Conclusão não alcançada.")

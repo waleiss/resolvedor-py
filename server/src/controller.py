@@ -43,7 +43,7 @@ class Controller:
     
     def run_evaluator(self, inferences):
         
-        process_inferences(inferences, self.rules, self.memory, self.log)
+        process_inferences(inferences, self.rules, self.memory, self.log, self.conclusion)
         print('\n')
         for step in self.log:
             print(step)
