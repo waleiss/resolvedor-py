@@ -11,50 +11,44 @@ class Conjunction(Observer):
             f"{memory.index(left_part) + 1}, {memory.index(right_part) + 1}"
         )
 
+    def get_all_subexpressions(self, expr):
+        """Coleta recursivamente todas as subexpressões para mapear necessidades."""
+        subexprs = []
+        if not hasattr(expr, 'operator'):
+            return [expr]
+        
+        subexprs.append(expr)
+        if hasattr(expr, 'left') and expr.left is not None:
+            subexprs.extend(self.get_all_subexpressions(expr.left))
+        if hasattr(expr, 'right') and expr.right is not None:
+            subexprs.extend(self.get_all_subexpressions(expr.right))
+        return subexprs
+
     def update(self, memory, log, conclusion=None):
-        # Primeiro, verifica se há necessidade de gerar a conclusão diretamente
-        if conclusion and conclusion.operator == '∧':
-            left_part = conclusion.left
-            right_part = conclusion.right
-
-            # Se ambas as partes estão na memória e a conclusão não foi formada
-            if left_part in memory and right_part in memory and conclusion not in memory:
-                memory.append(conclusion)
-                self.add_to_log(log, memory, left_part, right_part, conclusion)
-                print(f"Aplicando Conjunção (Conclusão): {left_part} e {right_part} ⇒ {conclusion}")
-                return
-
-        # Em seguida, verifica se há conjunções que podem ser formadas pela memória
+        # 1. Mapeia todos os "alvos" em qualquer profundidade
+        targets = []
+        if conclusion:
+            targets.extend(self.get_all_subexpressions(conclusion))
+        
         for expr in memory:
-            # Verifica conjunções na esquerda
-            if expr.operator in ['→', '↔', '∧', '∨'] and expr.left.operator == '∧':
-                left_part = expr.left.left
-                right_part = expr.left.right
+            targets.extend(self.get_all_subexpressions(expr))
 
+        # 2. Varre os alvos em busca de necessidades de Conjunção (∧)
+        for target in targets:
+            if hasattr(target, 'operator') and target.operator == '∧':
+                left_part = target.left
+                right_part = target.right
+
+                # Regra: AMBOS os lados precisam estar soltos na memória
                 if left_part in memory and right_part in memory:
-                    new_expr = Expression(operator='∧', left=left_part, right=right_part)
-                    if new_expr not in memory:
-                        memory.append(new_expr)
-                        self.add_to_log(log, memory, left_part, right_part, new_expr)
-                        print(f"Aplicando Conjunção (Memória): {left_part} e {right_part} ⇒ {new_expr}")
-                        return
-
-            # Verifica conjunções na direita
-            if expr.operator in ['→', '↔', '∧', '∨'] and expr.right.operator == '∧':
-                left_part = expr.right.left
-                right_part = expr.right.right
-
-                if left_part in memory and right_part in memory:
-                    new_expr = Expression(operator='∧', left=left_part, right=right_part)
-                    if new_expr not in memory:
-                        memory.append(new_expr)
-                        self.add_to_log(log, memory, left_part, right_part, new_expr)
-                        print(f"Aplicando Conjunção (Memória): {left_part} e {right_part} ⇒ {new_expr}")
+                    if target not in memory:
+                        memory.append(target)
+                        self.add_to_log(log, memory, left_part, right_part, target)
+                        print(f"Aplicando Conjunção: {left_part} e {right_part} ⇒ {target}")
                         return
 
     def verify(self, memory, proposition):
-        # Verifica se a proposição pode ser formada
-        if proposition and proposition.operator == '∧':
+        if proposition and hasattr(proposition, 'operator') and proposition.operator == '∧':
             left_part = proposition.left
             right_part = proposition.right
 
