@@ -1,28 +1,20 @@
 from ..interfaces import Observer
 from ..expression import Expression
 
-class MaterialImplication(Observer):
+class MaterialEquivalence(Observer):
     def __init__(self):
         pass
 
-    def is_negation(self, expression):
-        return expression.operator == '¬'
-
-    def get_negated(self, expression):
-        if self.is_negation(expression):
-            return expression.left  # Remove dupla negação
-        return Expression(operator='¬', left=expression)
-
-    def add_to_log(self, log, memory, expr, new_expr):
+    def add_to_log(self, log, memory, expr, transformed):
         log.append(
-            f"({len(log) - 1}) {new_expr}  Implicação Material  "
+            f"({len(log) - 1}) {transformed}  Equivalência Material  "
             f"{memory.index(expr) + 1}"
         )
 
     def get_all_transformations(self, expr):
         """
         Retorna uma lista de todas as expressões possíveis geradas ao aplicar
-        a Implicação Material exatamente uma vez em qualquer profundidade.
+        a Equivalência Material exatamente uma vez em qualquer profundidade.
         """
         if not hasattr(expr, 'operator'):
             return []
@@ -31,27 +23,32 @@ class MaterialImplication(Observer):
 
         # --- 1. TENTATIVA NO NÍVEL ATUAL (Topo) ---
         
-        # Via 1: P → Q  ⇒  ¬P ∨ Q
-        if expr.operator == '→':
+        # Via 1: A ↔ B  ⇒  (A → B) ∧ (B → A)
+        if expr.operator == '↔':
+            left = expr.left
+            right = expr.right
             transformations.append(
                 Expression(
-                    operator='∨',
-                    left=self.get_negated(expr.left),
-                    right=expr.right
+                    operator='∧',
+                    left=Expression(operator='→', left=left, right=right),
+                    right=Expression(operator='→', left=right, right=left)
                 )
             )
 
-        # Via 2: P ∨ Q  ⇒  ¬P → Q
-        # (Nota: Se a expressão original for ¬P ∨ Q, o get_negated no lado esquerdo
-        # removerá a negação resultando perfeitamente em P → Q)
-        if expr.operator == '∨':
-            transformations.append(
-                Expression(
-                    operator='→',
-                    left=self.get_negated(expr.left),
-                    right=expr.right
-                )
-            )
+        # Via 2: (A → B) ∧ (B → A)  ⇒  A ↔ B
+        if expr.operator == '∧':
+            if hasattr(expr.left, 'operator') and expr.left.operator == '→' and \
+               hasattr(expr.right, 'operator') and expr.right.operator == '→':
+                
+                # Verifica se as implicações são cruzadas: left.left == right.right e left.right == right.left
+                if expr.left.left == expr.right.right and expr.left.right == expr.right.left:
+                    transformations.append(
+                        Expression(
+                            operator='↔',
+                            left=expr.left.left,
+                            right=expr.left.right
+                        )
+                    )
 
         # --- 2. RECURSÃO NOS FILHOS ---
         if hasattr(expr, 'left') and expr.left:
@@ -76,7 +73,7 @@ class MaterialImplication(Observer):
                 if transformed not in memory:
                     memory.append(transformed)
                     self.add_to_log(log, memory, expr, transformed)
-                    print(f"Aplicando Implicação Material: {expr} ⇒ {transformed}")
+                    print(f"Aplicando Equivalência Material: {expr} ⇒ {transformed}")
                     return 
 
     def verify(self, memory, proposition):

@@ -2,8 +2,7 @@ from .modusponens import ModusPonens
 from .modustollens import ModusTollens
 from .hypotheticalsyllogism import HypotheticalSyllogism
 from .disjunctivesyllogism import DisjunctiveSyllogism
-from .biimplicationintroduction import BiimplicationIntroduction
-from .biimplicationdissociation import BiimplicationDissociation
+from .materialequivalence import MaterialEquivalence
 from .transposition import Transposition
 from .associativity import Associativity
 from .commutativity import Commutativity

@@ -5,52 +5,67 @@ class DoubleNegation(Observer):
     def __init__(self):
         pass
 
-    def add_to_log(self, log, memory, expr, simplified_expression):
+    def add_to_log(self, log, memory, expr, transformed):
         log.append(
-            f"({len(log) - 1}) {simplified_expression}  Dupla Negação  "
+            f"({len(log) - 1}) {transformed}  Dupla Negação  "
             f"{memory.index(expr) + 1}"
         )
 
     def is_negation(self, expression):
-        return expression.operator == '¬'
+        return hasattr(expression, 'operator') and expression.operator == '¬'
+
+    def get_all_transformations(self, expr):
+        """
+        Retorna uma lista de todas as expressões possíveis geradas ao aplicar
+        a Dupla Negação exatamente uma vez em qualquer profundidade.
+        """
+        transformations = []
+
+        # --- 1. TENTATIVA NO NÍVEL ATUAL (Topo) ---
+        
+        # Via 1: ¬(¬P) ⇒ P (Remoção)
+        if self.is_negation(expr) and self.is_negation(expr.left):
+            transformations.append(expr.left.left)
+
+        # Via 2: P ⇒ ¬(¬P) (Introdução)
+        # Pode ser aplicado a qualquer expressão ou átomo (string)
+        #transformations.append(
+        #    Expression(operator='¬', left=Expression(operator='¬', left=expr))
+        #)
+
+        # --- 2. RECURSÃO NOS FILHOS ---
+        # Só tenta recursão se expr for um objeto Expression (se for um átomo, pula isso)
+        if hasattr(expr, 'operator'):
+            if hasattr(expr, 'left') and expr.left is not None:
+                for new_left in self.get_all_transformations(expr.left):
+                    transformations.append(
+                        Expression(operator=expr.operator, left=new_left, right=getattr(expr, 'right', None))
+                    )
+
+            if hasattr(expr, 'right') and expr.right is not None:
+                for new_right in self.get_all_transformations(expr.right):
+                    transformations.append(
+                        Expression(operator=expr.operator, left=getattr(expr, 'left', None), right=new_right)
+                    )
+
+        return transformations
 
     def update(self, memory, log, conclusion=None):
         for expr in memory:
-            # Verifica se é uma negação e se o filho é uma negação também
-            if self.is_negation(expr) and self.is_negation(expr.left):
-                simplified_expression = expr.left.left
-                if simplified_expression not in memory:
-                    memory.append(simplified_expression)
-                    self.add_to_log(log, memory, expr, simplified_expression)
-                    print(f"Aplicando Dupla Negação: {expr} ⇒ {simplified_expression}")
-                    return  # Adiciona apenas uma vez por iteração
+            possiveis_transformacoes = self.get_all_transformations(expr)
             
-            #Para E ↔ ¬(¬F) virar E ↔ F
-            elif expr.operator and not self.is_negation(expr):
-                new_expr = Expression(operator=expr.operator, left=expr.left, right=expr.right)
-                if self.is_negation(expr.left) and self.is_negation(expr.left.left):
-                    new_expr.left = expr.left.left.left
-                if self.is_negation(expr.right) and self.is_negation(expr.right.left):
-                    new_expr.right = expr.right.left.left
-                if new_expr not in memory:
-                    memory.append(new_expr)
-                    self.add_to_log(log, memory, expr, new_expr)
-                    print(f"Aplicando Dupla Negação: {expr} ⇒ {new_expr}")
-                    return
+            for transformed in possiveis_transformacoes:
+                if transformed not in memory:
+                    memory.append(transformed)
+                    self.add_to_log(log, memory, expr, transformed)
+                    print(f"Aplicando Dupla Negação: {expr} ⇒ {transformed}")
+                    return 
 
     def verify(self, memory, proposition):
         for expr in memory:
-            if self.is_negation(expr) and self.is_negation(expr.left):
-                simplified_expression = expr.left.left
-                if simplified_expression not in memory and simplified_expression == proposition:
-                    return True
+            possiveis_transformacoes = self.get_all_transformations(expr)
+            
+            if proposition in possiveis_transformacoes:
+                return True
                 
-            elif expr.operator and not self.is_negation(expr):
-                new_expr = Expression(operator=expr.operator, left=expr.left, right=expr.right)
-                if self.is_negation(expr.left) and self.is_negation(expr.left.left):
-                    new_expr.left = expr.left.left.left
-                if self.is_negation(expr.right) and self.is_negation(expr.right.left):
-                    new_expr.right = expr.right.left.left
-                if new_expr not in memory and new_expr == proposition:
-                    return True
         return False

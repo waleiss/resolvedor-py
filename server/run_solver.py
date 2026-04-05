@@ -6,8 +6,7 @@ from src.parser import parse_expression
 RULES = [
     DisjunctiveSyllogism(),
     ModusTollens(),
-    BiimplicationIntroduction(),
-    BiimplicationDissociation(),
+    MaterialEquivalence(),
     ModusPonens(),
     HypotheticalSyllogism(),
     Transposition(),

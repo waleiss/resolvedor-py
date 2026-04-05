@@ -8,8 +8,7 @@ from src.parser import parse_expression
 RULES_DICT = {
     "Silogismo Disjuntivo": DisjunctiveSyllogism(),
     "Modus Tollens": ModusTollens(),
-    "Introdução da Bi-implicação": BiimplicationIntroduction(),
-    "Dissociação de Bi-implicação": BiimplicationDissociation(),
+    "Equivalência Material": MaterialEquivalence(),
     "Modus Ponens": ModusPonens(),
     "Silogismo Hipotético": HypotheticalSyllogism(),
     "Transposição": Transposition(),

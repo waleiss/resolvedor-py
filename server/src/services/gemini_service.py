@@ -134,7 +134,7 @@ Retorne APENAS JSON no formato:
 }}
 
 Regras permitidas:
-Silogismo Disjuntivo, Modus Tollens, Introdução da Bi-implicação, Dissociação de Bi-implicação, Modus Ponens, Silogismo Hipotético, Transposição, Associatividade, Comutatividade, Distributividade, De Morgan, Dilema Construtivo, Exportação, Implicação Material, Conjunção, Simplificação, Dupla Negação e Adição.
+Silogismo Disjuntivo, Modus Tollens, Equivalência Material, Modus Ponens, Silogismo Hipotético, Transposição, Associatividade, Comutatividade, Distributividade, De Morgan, Dilema Construtivo, Exportação, Implicação Material, Conjunção, Simplificação, Dupla Negação e Adição.
 
 Restrições obrigatórias:
 - Use somente as regras permitidas e escreva o nome da regra EXATAMENTE como listado.
@@ -220,7 +220,7 @@ Conclusão: {conclusion}
         
         prompt = f"""Você é um especialista em lógica proposicional.
 
-    Analise a resolução do problema abaixo passo a passo e retorne APENAS JSON com:
+    Analise a resolução do problema de prova de argumento via dedução natural abaixo passo a passo e retorne APENAS JSON com:
     - summary
     - step_reviews
     - optimization_notes
@@ -233,7 +233,7 @@ Conclusão: {conclusion}
     - indique se a solução está totalmente correta;
     - nas notas de otimização, descreva como a solução poderia ser otimizada;
     - a explicação deve ser adaptada para alunos de graduação em cursos introdutórios de lógica, ou seja, você deve definir quaisquer termos técnicos e explicar cada etapa claramente;
-    - regras de inferência e equivalência permitidas: Silogismo Disjuntivo, Modus Tollens, Introdução da Bi-implicação, Dissociação de Bi-implicação, Modus Ponens, Silogismo Hipotético, Transposição, Associatividade, Comutatividade, Distributividade, De Morgan, Dilema Construtivo, Exportação, Implicação Material, Conjunção, Simplificação, Dupla Negação e Adição.
+    - regras de inferência e equivalência permitidas: Silogismo Disjuntivo, Modus Tollens, Equivalência Material, Modus Ponens, Silogismo Hipotético, Transposição, Associatividade, Comutatividade, Distributividade, De Morgan, Dilema Construtivo, Exportação, Implicação Material, Conjunção, Simplificação, Dupla Negação e Adição.
 
     Problema:
     {problem}
@@ -328,7 +328,7 @@ Critérios:
 - num_steps: quantidade total de passos da solução (solver_output.steps_raw).
 - num_valid_steps: quantidade de passos válidos identificados.
 - num_invalid_steps: quantidade de passos inválidos identificados.
-- reaches_target_conclusion: true se a conclusão-alvo foi alcançada.
+- reaches_target_conclusion: true se a conclusão-alvo foi alcançada de maneira válida.
 - is_fully_correct: true somente se todos os passos forem válidos E a conclusão for alcançada.
 - error_type: null quando não houver erro; caso contrário use EXATAMENTE um dos valores:
   1) aplicação inválida de regra
@@ -337,7 +337,7 @@ Critérios:
   4) uso incorreto de referência a linhas anteriores
 
 Regras de interpretação:
-- Se houver log do avaliador com "Inferência inválida (regra não encontrada", use "regra inexistente".
+- Se houver log do avaliador com "Inferência inválida (regra não encontrada)", use "regra inexistente".
 - Se houver log com referências inconsistentes, use "uso incorreto de referência a linhas anteriores".
 - Se houver "Inferência inválida" por aplicação da regra ou "depende de passo inválido", use "aplicação inválida de regra".
 - Se não alcançar a conclusão solicitada, use "conclusão não alcançada".
