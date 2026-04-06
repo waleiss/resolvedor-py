@@ -69,6 +69,22 @@ export async function getExperiment(filename: string): Promise<Experiment> {
   return response.json();
 }
 
+export async function getExperimentsWithAnalysis(): Promise<Experiment[]> {
+  const response = await fetch(`${API_BASE_URL}/experiments/full`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.experiments;
+}
+
 export async function getProblems(): Promise<SavedProblem[]> {
   const response = await fetch(`${API_BASE_URL}/problems`, {
     method: 'GET',

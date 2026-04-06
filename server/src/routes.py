@@ -328,6 +328,21 @@ def register_routes(app):
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
+    @app.route('/experiments/full', methods=['GET'])
+    def list_experiments_full():
+        """
+        Lista todos os experimentos com o documento completo, incluindo analysis.
+        """
+        try:
+            experiments = storage_service.get_all_experiments_full()
+            return jsonify({
+                "success": True,
+                "count": len(experiments),
+                "experiments": experiments
+            }), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
     @app.route('/experiments/<filename>', methods=['GET'])
     def get_experiment(filename):
         """

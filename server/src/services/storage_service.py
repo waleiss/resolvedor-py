@@ -25,7 +25,7 @@ class StorageService:
             self.client.admin.command('ping')
             
             self.db = self.client['tcc']
-            self.experiments_collection = self.db['experiments']
+            self.experiments_collection = self.db['experimentsnoimpossible']
             self.problems_collection = self.db['problems']
             
             # Cria índices para ordenação eficiente
@@ -112,6 +112,36 @@ class StorageService:
         except Exception as e:
             print(f"Erro inesperado ao buscar experimentos: {str(e)}")
             return []
+
+    def get_all_experiments_full(self) -> List[Dict[str, Any]]:
+        """
+        Retorna lista completa de todos os experimentos salvos no MongoDB.
+
+        Returns:
+            Lista de documentos completos dos experimentos
+        """
+        try:
+            cursor = self.experiments_collection.find({}).sort("metadata.timestamp", DESCENDING)
+
+            experiments = []
+            for doc in cursor:
+                doc_data = dict(doc)
+                doc_data.pop("_id", None)
+
+                if "metadata" not in doc_data:
+                    doc_data["metadata"] = {}
+                doc_data["metadata"]["filename"] = doc.get("_id")
+
+                experiments.append(doc_data)
+
+            return experiments
+
+        except PyMongoError as e:
+            print(f"Erro ao buscar experimentos completos: {str(e)}")
+            return []
+        except Exception as e:
+            print(f"Erro inesperado ao buscar experimentos completos: {str(e)}")
+            return []
     
     def get_experiment(self, document_id: str) -> Dict[str, Any]:
         """
@@ -158,68 +188,6 @@ class StorageService:
             }
     
     # ========== MÉTODOS PARA GERENCIAR PROBLEMAS ==========
-    
-    def add_problem(
-        self,
-        description: str,
-        sentences: List[str],
-        conclusion: str,
-        difficulty: str = "medium"
-    ) -> Dict[str, Any]:
-        """
-        Adiciona um novo problema ao banco de dados.
-        
-        Args:
-            description: Descrição do problema (ex: "p → q, p ⊢ q")
-            sentences: Lista de sentenças (premissas)
-            conclusion: Conclusão do problema
-            difficulty: Dificuldade (easy, medium, hard)
-            
-        Returns:
-            Dict com informações sobre o problema salvo
-        """
-        # Valida dificuldade
-        valid_difficulties = ["easy", "medium", "hard"]
-        if difficulty.lower() not in valid_difficulties:
-            return {
-                "success": False,
-                "error": f"Dificuldade inválida. Use: {', '.join(valid_difficulties)}"
-            }
-        
-        # Gera timestamp e ID
-        timestamp = datetime.now()
-        timestamp_str = timestamp.strftime("%Y%m%d_%H%M%S_%f")
-        problem_id = f"problem_{timestamp_str}"
-        
-        # Monta o documento
-        document = {
-            "_id": problem_id,
-            "description": description,
-            "sentences": sentences,
-            "conclusion": conclusion,
-            "difficulty": difficulty.lower(),
-            "created_at": timestamp.isoformat()
-        }
-        
-        try:
-            self.problems_collection.insert_one(document)
-            
-            return {
-                "success": True,
-                "problem_id": problem_id,
-                "message": "Problema cadastrado com sucesso"
-            }
-            
-        except PyMongoError as e:
-            return {
-                "success": False,
-                "error": f"Erro ao salvar problema: {str(e)}"
-            }
-        except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
     
     def get_all_problems(
         self,
@@ -301,41 +269,6 @@ class StorageService:
             return {
                 "success": False,
                 "error": f"Erro ao buscar problema: {str(e)}"
-            }
-        except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
-    
-    def delete_problem(self, problem_id: str) -> Dict[str, Any]:
-        """
-        Remove um problema do banco de dados.
-        
-        Args:
-            problem_id: ID do problema
-            
-        Returns:
-            Dict com resultado da operação
-        """
-        try:
-            result = self.problems_collection.delete_one({"_id": problem_id})
-            
-            if result.deleted_count == 0:
-                return {
-                    "success": False,
-                    "error": "Problema não encontrado"
-                }
-            
-            return {
-                "success": True,
-                "message": "Problema removido com sucesso"
-            }
-            
-        except PyMongoError as e:
-            return {
-                "success": False,
-                "error": f"Erro ao remover problema: {str(e)}"
             }
         except Exception as e:
             return {

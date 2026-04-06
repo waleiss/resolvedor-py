@@ -7,6 +7,21 @@ export interface Argument {
 
 export type PipelineType = 'solver_to_llm' | 'llm_to_evaluator';
 
+export type AnalysisErrorType =
+  | 'aplicação inválida de regra'
+  | 'regra inexistente'
+  | 'conclusão não alcançada'
+  | 'uso incorreto de referência a linhas anteriores';
+
+export interface AnalysisOutput {
+  num_steps: number;
+  num_valid_steps: number;
+  num_invalid_steps: number;
+  reaches_target_conclusion: boolean;
+  is_fully_correct: boolean;
+  error_type: AnalysisErrorType | null;
+}
+
 export interface ExperimentMetadata {
   timestamp: string;
   filename: string;
@@ -44,6 +59,7 @@ export interface Experiment {
   evaluator: ExperimentAgent;
   solver_output: SolverOutput;
   evaluation_output: EvaluationOutput;
+  analysis?: AnalysisOutput | null;
 }
 
 export interface ExperimentListItem {

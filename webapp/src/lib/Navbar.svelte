@@ -38,6 +38,12 @@
             Resultados
           </a>
         </li>
+        <li>
+          <a href="#/metrics" class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px]">insights</span>
+            Métricas
+          </a>
+        </li>
       </ul>
     </div>
 
@@ -59,6 +65,12 @@
         <a href="#/resultados" class="hover:text-primary flex items-center gap-1">
           <span class="material-symbols-outlined text-[20px]">description</span>
           Resultados
+        </a>
+      </li>
+      <li>
+        <a href="#/metrics" class="hover:text-primary flex items-center gap-1">
+          <span class="material-symbols-outlined text-[20px]">insights</span>
+          Métricas
         </a>
       </li>
     </ul>
