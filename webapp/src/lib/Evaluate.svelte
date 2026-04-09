@@ -134,8 +134,8 @@
 {#if modalOpen && selectedExperiment}
   <dialog class="modal modal-open">
     <div class="modal-box max-w-7xl w-full h-[90vh] flex flex-col relative overflow-hidden p-0">
-      <div class="p-6 overflow-y-auto flex-1">
-          <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 z-50" onclick={closeModal}>✕</button>
+      <div class="p-6 overflow-y-auto flex-1 transition-all duration-300" style={drawerOpen ? "margin-right: 20rem;" : ""}>
+          <button class="btn btn-sm btn-circle btn-ghost absolute top-2 z-50 transition-all duration-300" style={drawerOpen ? "right: 20.5rem;" : "right: 0.5rem;"} onclick={closeModal}>✕</button>
           
           <div class="mb-6 text-center">
             <h3 class="text-2xl font-bold mb-2">{selectedExperiment.problem.description}</h3>
