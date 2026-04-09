@@ -46,6 +46,18 @@ export interface SolverOutput {
   steps_raw: string[];
 }
 
+
+export interface EvaluatorMetrics {
+  clareza: number;
+  justificativa: number;
+  consistencia: number;
+}
+
+export interface QualitativeEval {
+  evaluator_1?: EvaluatorMetrics;
+  evaluator_2?: EvaluatorMetrics;
+}
+
 export interface EvaluationOutput {
   success: boolean;
   log: string[] | null;
@@ -60,6 +72,7 @@ export interface Experiment {
   solver_output: SolverOutput;
   evaluation_output: EvaluationOutput;
   analysis?: AnalysisOutput | null;
+  qualitative_eval?: QualitativeEval;
 }
 
 export interface ExperimentListItem {

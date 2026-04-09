@@ -68,9 +68,15 @@
         </a>
       </li>
       <li>
-        <a href="#/metrics" class="hover:text-primary flex items-center gap-1">
+        <a href="#/metricas" class="hover:text-primary flex items-center gap-1">
           <span class="material-symbols-outlined text-[20px]">insights</span>
           Métricas
+        </a>
+      </li>
+      <li>
+        <a href="#/avaliar" class="hover:text-primary flex items-center gap-1">
+          <span class="material-symbols-outlined text-[20px]">grading</span>
+          Avaliar
         </a>
       </li>
     </ul>

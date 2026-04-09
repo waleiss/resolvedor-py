@@ -100,3 +100,23 @@ export async function getProblems(): Promise<SavedProblem[]> {
   const data = await response.json();
   return data.problems;
 }
+
+export async function getExperimentsSample(): Promise<Experiment[]> {
+  const response = await fetch(`${API_BASE_URL}/experiments/evaluate`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  const data = await response.json();
+  return data.experiments;
+}
+
+export async function saveQualitativeEvaluation(filename: string, evaluator: string, metrics: { clareza: number, justificativa: number, consistencia: number }): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/experiments/${filename}/evaluate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ evaluator, ...metrics }),
+  });
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  return response.json();
+}

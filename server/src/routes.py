@@ -343,6 +343,31 @@ def register_routes(app):
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
+    @app.route("/experiments/evaluate", methods=["GET"])
+    def list_experiments_evaluate():
+        try:
+            experiments = storage_service.get_experiments_evaluation()
+            return jsonify({"success": True, "count": len(experiments), "experiments": experiments})
+        except Exception as e:
+            return jsonify({"success": False, "error": str(e)}), 500
+
+    @app.route("/experiments/<filename>/evaluate", methods=["POST"])
+    def evaluate_experiment(filename):
+        try:
+            data = request.json
+            evaluator = data.get("evaluator")
+            clareza = data.get("clareza")
+            justificativa = data.get("justificativa")
+            consistencia = data.get("consistencia")
+            if not evaluator or clareza is None or justificativa is None or consistencia is None:
+                return jsonify({"success": False, "error": "Dados invalidos"}), 400
+            result = storage_service.save_experiment_evaluation(filename, evaluator, clareza, justificativa, consistencia)
+            if not result["success"]:
+                return jsonify(result), 400
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({"success": False, "error": str(e)}), 500
+
     @app.route('/experiments/<filename>', methods=['GET'])
     def get_experiment(filename):
         """

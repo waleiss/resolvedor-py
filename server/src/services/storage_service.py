@@ -143,6 +143,65 @@ class StorageService:
             print(f"Erro inesperado ao buscar experimentos completos: {str(e)}")
             return []
     
+    def get_experiments_evaluation(self) -> List[Dict[str, Any]]:
+        """
+        Retorna uma amostra de 20 experimentos do pipeline 'solver_to_llm'.
+        Usa $sample com $match para buscar, garantindo um set inicial com seed.
+        Mas como o mongo não tem seed no sample nativo na versão básica,
+        podemos buscar todos e usar random no python com seed 77.
+        """
+        try:
+            import random
+            cursor = self.experiments_collection.find({"metadata.pipeline": "solver_to_llm"})
+            
+            experiments = []
+            for doc in cursor:
+                doc_data = dict(doc)
+                _id = doc_data.pop("_id", None)
+                if "metadata" not in doc_data:
+                    doc_data["metadata"] = {}
+                doc_data["metadata"]["filename"] = _id
+                experiments.append(doc_data)
+                
+            # Random seed 77
+            rng = random.Random(77)
+            if len(experiments) > 20:
+                experiments = rng.sample(experiments, 20)
+                
+            return experiments
+            
+        except PyMongoError as e:
+            print(f"Erro ao buscar amostra de experimentos: {str(e)}")
+            return []
+        except Exception as e:
+            print(f"Erro inesperado ao buscar amostra de experimentos: {str(e)}")
+            return []
+
+    def save_experiment_evaluation(self, filename: str, evaluator: str, clareza: int, justificativa: int, consistencia: int) -> Dict[str, Any]:
+        """Salva a avaliação de um especialista em um experimento."""
+        try:
+            update_field = f"qualitative_eval.{evaluator}"
+            eval_data = {
+                "clareza": clareza,
+                "justificativa": justificativa,
+                "consistencia": consistencia
+            }
+            
+            result = self.experiments_collection.update_one(
+                {"_id": filename},
+                {"$set": {update_field: eval_data}}
+            )
+            
+            if result.matched_count == 0:
+                return {"success": False, "error": "Experimento não encontrado"}
+                
+            return {"success": True}
+            
+        except PyMongoError as e:
+            return {"success": False, "error": f"Erro ao salvar avaliação: {str(e)}"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
     def get_experiment(self, document_id: str) -> Dict[str, Any]:
         """
         Recupera um experimento específico pelo ID do documento.

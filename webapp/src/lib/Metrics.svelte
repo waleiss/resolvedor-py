@@ -319,8 +319,8 @@
 <div class="container mx-auto p-4 space-y-6">
   <div class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
     <div>
-      <h1 class="text-3xl font-bold">Metrics</h1>
-      <p class="opacity-70">Resumo comparativo entre Agente W e Gemini usando o campo analysis dos experimentos.</p>
+      <h1 class="text-3xl font-bold">Métricas</h1>
+      <p class="opacity-70">Resumo comparativo entre Agente W e Gemini usando métricas quantitativas dos experimentos.</p>
     </div>
 
     <button class="btn btn-primary" on:click={loadMetrics} disabled={loading}>
@@ -329,7 +329,7 @@
       {:else}
         <span class="material-symbols-outlined">refresh</span>
       {/if}
-      Atualizar
+      Recarregar
     </button>
   </div>
 
