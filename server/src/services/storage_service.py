@@ -145,30 +145,53 @@ class StorageService:
     
     def get_experiments_evaluation(self) -> List[Dict[str, Any]]:
         """
-        Retorna uma amostra de 20 experimentos do pipeline 'solver_to_llm'.
-        Usa $sample com $match para buscar, garantindo um set inicial com seed.
-        Mas como o mongo não tem seed no sample nativo na versão básica,
-        podemos buscar todos e usar random no python com seed 77.
+        Retorna uma amostra de 20 experimentos do pipeline 'solver_to_llm',
+        divididos por dificuldade (6 fáceis, 7 médios, 7 difíceis).
+        Usa random no python com seed 77.
         """
         try:
             import random
             cursor = self.experiments_collection.find({"metadata.pipeline": "solver_to_llm"})
             
-            experiments = []
+            experiments_by_diff = {"easy": [], "medium": [], "hard": []}
             for doc in cursor:
                 doc_data = dict(doc)
                 _id = doc_data.pop("_id", None)
                 if "metadata" not in doc_data:
                     doc_data["metadata"] = {}
                 doc_data["metadata"]["filename"] = _id
-                experiments.append(doc_data)
+                
+                diff = doc_data.get("problem", {}).get("difficulty", "medium").lower()
+                if diff in experiments_by_diff:
+                    experiments_by_diff[diff].append(doc_data)
                 
             # Random seed 77
             rng = random.Random(77)
-            if len(experiments) > 20:
-                experiments = rng.sample(experiments, 20)
+            
+            sample = []
+            
+            # Sample 6 easy
+            easy_pool = experiments_by_diff["easy"]
+            if len(easy_pool) > 6:
+                sample.extend(rng.sample(easy_pool, 6))
+            else:
+                sample.extend(easy_pool)
                 
-            return experiments
+            # Sample 7 medium
+            medium_pool = experiments_by_diff["medium"]
+            if len(medium_pool) > 7:
+                sample.extend(rng.sample(medium_pool, 7))
+            else:
+                sample.extend(medium_pool)
+                
+            # Sample 7 hard
+            hard_pool = experiments_by_diff["hard"]
+            if len(hard_pool) > 7:
+                sample.extend(rng.sample(hard_pool, 7))
+            else:
+                sample.extend(hard_pool)
+                
+            return sample
             
         except PyMongoError as e:
             print(f"Erro ao buscar amostra de experimentos: {str(e)}")
